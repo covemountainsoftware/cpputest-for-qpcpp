@@ -1,0 +1,15 @@
+The software supporting this CppUTest port of the 
+QP/C++ Real-Time Embedded Framework is licensed under a 
+dual-licensing model. Most of the files present in this
+repository are only needed for host PC based test execution.
+However, a few of the examples and files may find their way
+into a product's build. But guess what? Even the commercial
+license is free! Simply register the product line using
+this software, and I will provide a free commercial
+friendly license.
+
+Contact Information:
+====================
+Matthew Eshleman
+- https://covemountainsoftware.com
+- mailto:info@covemountainsoftware.com
