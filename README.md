@@ -1,5 +1,7 @@
 # CppUTest for the QP/C++ Real-Time Embedded Framework
 
+Build and Test status: ![Build and Tests](https://github.com/covemountainsoftware/cpputest-for-qpcpp/actions/workflows/cmake.yml/badge.svg)
+
 Copyright Matthew Eshleman
 
 If this project inspires your team to select the qpcpp 
