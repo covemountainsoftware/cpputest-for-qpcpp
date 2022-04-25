@@ -1,5 +1,6 @@
-/// @brief  Tests for the HwLockCtrl::Service, demonstrating various unit testing
-///         capabilities of the 'fake' cms::test::qf_ctrl environment, using cpputest.
+/// @brief  Tests for the HwLockCtrl::Service, demonstrating various unit
+///         testing capabilities of the 'fake' cms::test::qf_ctrl environment,
+///         using cpputest.
 /// @ingroup
 /// @cond
 ///***************************************************************************
@@ -32,6 +33,10 @@
 #include "hwLockCtrlSelfTestEvent.hpp"
 #include "bspTicks.hpp"
 #include "qassertMockSupport.hpp"
+#include "pingPongEvents.hpp"
+#include "cmsDummyActiveObject.hpp"
+
+//the cpputest headers must always be last
 #include "CppUTest/TestHarness.h"
 #include "CppUTestExt/MockSupport.h"
 
@@ -45,17 +50,20 @@ static std::array<QP::QEvt const *, 10> testQueueStorage;
 
 /**
  * @brief These tests demonstrate the following key points:
- *         1) Does NOT test any thread that may be associated with the active object,
- *            rather, the associated cms:test::qf_ctrl environment is thread
- *            free, and "faked" to required the test to drive processing time.
+ *         1) Does NOT test any thread that may be associated with the active
+ *            object, rather, the associated cms:test::qf_ctrl environment is
+ *            thread free, and "faked" to required the test to drive
+ *            processing time.
  *         2) Tests the internal behavior of the active object without
  *            knowledge of the internal state machine. Rather, only
  *            by observing the behavior and associated output/results.
  *         3) Follow software engineering best practices, such
  *            as adhering to the DRY principle.
  *         4) Shows how to test if an event was published to the QP framework,
- *            using a published event recorder available from cms::test::qf_ctrl. *
- *         5) Shows how to test if a published event has a custom type and payload.
+ *            using a published event recorder available from
+ *            cms::test::qf_ctrl.
+ *         5) Shows how to test if a published event has a custom type and
+ *            payload.
  *         6) Shows how to test behavior driven by QActive timers (i.e. how
  *            to test the forward movement of time and expected behavior being
  *            tested.)
@@ -66,7 +74,8 @@ TEST_GROUP(HwLockCtrlServiceTests) {
 
     void setup() final {
         using namespace cms::test;
-        qf_ctrl::Setup(MAX_PUB_SIG, bsp::TICKS_PER_SECOND);
+        qf_ctrl::Setup(MAX_PUB_SIG,
+                       bsp::TICKS_PER_SECOND);
         mRecorder = cms::test::PublishedEventRecorder::CreatePublishedEventRecorder(
             qf_ctrl::RECORDER_PRIORITY,
             QP::Q_USER_SIG,
@@ -268,4 +277,42 @@ TEST(HwLockCtrlServiceTests, given_test_assert_event_will_assert_and_can_be_test
     mUnderTest->POST(&assertCausingEvent, 0);
     giveProcessingTime();
     mock().checkExpectations();
+}
+
+TEST(HwLockCtrlServiceTests, the_service_responds_to_a_ping_with_a_pong) {
+    startServiceToLocked();
+
+    //+500 just to ensure outside any internal private signals
+    static constexpr enum_t RESPONSE_SIG = PubSub::MAX_PUB_SIG + 500;
+
+    //this test demonstrates testing an AO that must respond directly
+    //to an event with a POST directly to an external requesting AO.
+
+    Pong pongEvent;
+    pongEvent.sig = 0;
+    pongEvent.m_source = nullptr;
+
+    auto dummy = std::unique_ptr<cms::DefaultDummyActiveObject>(new cms::DefaultDummyActiveObject());
+    dummy->SetPostedEventHandler(
+        [&pongEvent](const QP::QEvt* event){
+            auto p = static_cast<const Pong*>(event);
+            pongEvent.sig = p->sig;
+            pongEvent.m_source = p->m_source;
+         });
+
+    //Reminder: QF requires that each AO be at a unique priority level
+    //hence the '- 1' below.
+    dummy->dummyStart(qf_ctrl::UNIT_UNDER_TEST_PRIORITY - 1);
+
+    //Send the Ping to our AO under test and give it
+    //some processing time.
+    Ping::sendTo<HwLockCtrl::Service::DirectSignals::PING>(mUnderTest,
+                                                           RESPONSE_SIG,
+                                                           dummy.get());
+    qf_ctrl::ProcessEvents();
+
+    //confirm that our dummy received a Pong with expected
+    //data.
+    CHECK_EQUAL(RESPONSE_SIG, pongEvent.sig);
+    CHECK_EQUAL(mUnderTest, pongEvent.m_source);
 }

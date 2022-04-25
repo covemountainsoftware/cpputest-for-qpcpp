@@ -26,6 +26,7 @@
 #include "hwLockCtrl.h"
 #include "pubsub_signals.hpp"
 #include "hwLockCtrlSelfTestEvent.hpp"
+#include "pingPongEvents.hpp"
 #include "bspTicks.hpp"
 #include "qassert.h"
 
@@ -86,6 +87,12 @@ namespace HwLockCtrl {
                 //demonstrate testing assertions from cpputest
                 Q_ASSERT(true == false);
                 rtn = Q_RET_HANDLED;
+                break;
+            case DirectSignals::PING: {
+                    auto ping = static_cast<const Ping*>(e);
+                    Pong::sendTo(ping->m_requester, ping->responseSig, this);
+                    rtn = Q_RET_HANDLED;
+                }
                 break;
             default:
                 rtn = super(&top);

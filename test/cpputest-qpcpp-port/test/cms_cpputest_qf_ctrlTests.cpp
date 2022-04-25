@@ -22,8 +22,9 @@
 /// @endcond
 
 #include "qpcpp.h"
-#include "CppUTest/TestHarness.h"
 #include "cms_cpputest_qf_ctrl.hpp"
+#include "cmsDummyActiveObject.hpp"
+#include "CppUTest/TestHarness.h"
 
 namespace QP {
     extern QMPool QF_pool_[QF_MAX_EPOOL];
@@ -87,4 +88,44 @@ TEST(qf_ctrlTests, setup_provides_option_to_skip_memory_pool_leak_detection) {
     (void) e;
 
     //test should pass, as we disabled the memory pool leak detection during teardown.
+}
+
+TEST(qf_ctrlTests, qf_ctrl_provides_for_ability_to_move_time_forward_firing_active_object_timers_as_expected) {
+    using namespace std::chrono_literals;
+
+    enum Signals {
+        SIG_1 = QP::Q_USER_SIG,
+        SIG_2
+    };
+    qf_ctrl::Setup(10, 1000);
+
+    int sigOneCount = 0;
+    int sigTwoCount = 0;
+
+    //a 'dummy' active object is needed to verify
+    //that QF timers are actually firing.
+    auto dummy = std::unique_ptr<cms::DefaultDummyActiveObject>(new cms::DefaultDummyActiveObject());
+    dummy->dummyStart();
+    dummy->SetPostedEventHandler([&](QP::QEvt const * e){
+        if (e->sig == SIG_1) {
+            sigOneCount++;
+        } else if (e->sig == SIG_2) {
+            sigTwoCount++;
+        } else {
+            TEST_EXIT
+        }
+    });
+
+    QP::QTimeEvt singleshotTimer(dummy.get(), SIG_1);
+    singleshotTimer.armX(1000, 0);  //single shot timer
+
+    QP::QTimeEvt repeatingTimer(dummy.get(), SIG_2);
+    repeatingTimer.armX(2000, 2000);
+
+    //now move time forward 6 seconds. Expect one SIG_1 and
+    //3 hits on SIG_2
+    qf_ctrl::MoveTimeForward(6s);
+
+    CHECK_EQUAL(1, sigOneCount);
+    CHECK_EQUAL(3, sigTwoCount);
 }

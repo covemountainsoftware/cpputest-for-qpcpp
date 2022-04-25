@@ -42,7 +42,8 @@ TEST_GROUP(PublishedEventRecorderTests) {
 
     void teardown() final {
         cms::test::qf_ctrl::Teardown();
-        delete mUnderTest;
+        if (mUnderTest)
+            delete mUnderTest;
     }
 
     void ConfirmOneTrivialEventRecordingBehavior(enum_t sig) const {
@@ -86,3 +87,16 @@ TEST(PublishedEventRecorderTests, recorder_can_oneshot_ignore_an_event) {
     ConfirmOneTrivialEventRecordingBehavior(TEST1_PUBLISH_SIG);
 }
 
+TEST(PublishedEventRecorderTests, upon_destruction_recorder_will_gc_any_recorded_events_not_retrieved) {
+    qf_ctrl::PublishEvent(TEST1_PUBLISH_SIG);
+    qf_ctrl::PublishEvent(TEST2_PUBLISH_SIG);
+    qf_ctrl::ProcessEvents();  //give cpu time for processing
+    CHECK_TRUE(mUnderTest->isAnyEventRecorded());
+    delete mUnderTest;  //must delete before qf_ctrl teardown leak detection.
+    mUnderTest = nullptr;
+}
+
+TEST(PublishedEventRecorderTests, recorder_returns_null_if_no_event_was_recorded) {
+    auto event = mUnderTest->getRecordedEvent<QP::QEvt>();
+    CHECK_TRUE(event == nullptr);
+}

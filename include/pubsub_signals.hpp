@@ -2,8 +2,8 @@
 /// @brief The public signals used in the publish/subscribe event system
 ///***************************************************************************
 
-#ifndef PUBSUB_SIGNALS_HPP
-#define PUBSUB_SIGNALS_HPP
+#ifndef PUB_SUB_SIGNALS_HPP
+#define PUB_SUB_SIGNALS_HPP
 
 #include "qpcpp.h"
 
@@ -13,7 +13,7 @@ namespace PubSub {
 enum Signals {
     STARTING_PUB_SUB_SIG = QP::Q_USER_SIG,
 
-    #include "../services/hwLockCtrlService/include/hwLockCtrlServiceExpectedPubSubSigs.hpp"
+    #include "hwLockCtrlServiceExpectedPubSubSigs.hpp"
 
     DEMONSTRATE_TEST_OF_QASSERT,
 
@@ -22,4 +22,4 @@ enum Signals {
 
 } //namespace PubSub
 
-#endif //PUBSUB_SIGNALS_HPP
+#endif //PUB_SUB_SIGNALS_HPP

@@ -48,21 +48,22 @@ namespace HwLockCtrl {
             UNLOCKED
         };
 
+        enum DirectSignals {
+            PING = PubSub::MAX_PUB_SIG,
+            MAX_DIRECT_SIG
+        };
+
         Service();
 
         ~Service() override = default;
-
         Service(const Service &) = delete;
-
         Service &operator=(const Service &) = delete;
-
         Service(Service &&) = delete;
-
         Service &operator=(Service &&) = delete;
 
     protected:
         enum InternalSignals {
-            REQUEST_GOTO_HISTORY  = PubSub::MAX_PUB_SIG,
+            REQUEST_GOTO_HISTORY  = DirectSignals::MAX_DIRECT_SIG,
             POLL_COMM_STATUS
         };
 

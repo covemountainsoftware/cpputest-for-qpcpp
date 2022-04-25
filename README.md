@@ -137,10 +137,9 @@ provides examples of:
   events published during a test. The recorded events can be retrieved and verified by the test.
 * Testing of time related behavior. This project provides for the ability to
   `MoveTimeForward` within a test.
-
-Not demonstrated (at this time) is the test scenario where the active object
-under test is required to POST a message directly to another active object. However, this
-is possible when using the project's `cms::test::DummyActiveObject` support.
+* Direct POST of events and testing of direct POST responses. See
+  the example and search for the Ping/Pong related test, using the
+  support class `cms::test::DummyActiveObject`.
 
 ## Testing Active Objects using CppUTest
 
@@ -189,8 +188,8 @@ To create tests for an active object, the following outline is considered:
 8. Confirm how the unit under test responded. Did it call the `mock()` as expected? Did
    it publish a response into the framework? What data do I need to inspect for changes?
 
-That is it! That is the basic pattern for testing an active object. See the 
-examples at: `services/hwLockCtrlService/test/hwLockCtrlServiceTests.cpp` to
+That is it! That is the basic pattern for testing an active object. See  
+examples at: `examples/hwLockCtrlService/test/hwLockCtrlServiceTests.cpp` to
 learn more.
 
 Other tips:
