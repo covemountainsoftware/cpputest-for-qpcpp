@@ -25,11 +25,11 @@
 #ifndef CMS_TEST_PUBLISHED_EVENT_RECORDER_HPP
 #define CMS_TEST_PUBLISHED_EVENT_RECORDER_HPP
 
-#include <vector>
-#include "qpcpp.hpp"
+#include "cmsDummyActiveObject.hpp"
 #include "cmsVectorBackedQEQueue.hpp"
 #include "qevtUniquePtr.hpp"
-#include "cmsDummyActiveObject.hpp"
+#include "qpcpp.hpp"
+#include <vector>
 
 namespace cms {
 namespace test {
@@ -44,14 +44,14 @@ private:
     const enum_t m_startingValue;
     const enum_t m_endValue;
     cms::VectorBackedQEQueue m_recordedEvents;
-    enum_t  m_oneShotIgnoreSig;
+    enum_t m_oneShotIgnoreSig;
 
 public:
-    static PublishedEventRecorder * CreatePublishedEventRecorder(
-                                        uint_fast8_t priority,
-                                        enum_t startingValue,
-                                        enum_t endValue,
-                                        size_t maxRecordedEventCount = 100) {
+    static PublishedEventRecorder*
+    CreatePublishedEventRecorder(uint_fast8_t priority, enum_t startingValue,
+                                 enum_t endValue,
+                                 size_t maxRecordedEventCount = 100)
+    {
         auto recorder = new PublishedEventRecorder(startingValue, endValue,
                                                    maxRecordedEventCount);
         recorder->recorderStart(priority);
@@ -69,29 +69,31 @@ public:
     ///                              recorder may store.
     explicit PublishedEventRecorder(enum_t startingValue, enum_t endValue,
                                     size_t maxRecordedEventCount = 100) :
-            DummyActiveObject(),
-            m_startingValue(startingValue),
-            m_endValue(endValue),
-            m_recordedEvents(maxRecordedEventCount),
-            m_oneShotIgnoreSig(0)  {
+        DummyActiveObject(),
+        m_startingValue(startingValue), m_endValue(endValue),
+        m_recordedEvents(maxRecordedEventCount), m_oneShotIgnoreSig(0)
+    {
     }
 
-    ~PublishedEventRecorder() override {
+    ~PublishedEventRecorder() override
+    {
         while (!m_recordedEvents.isEmpty()) {
             const auto e = m_recordedEvents.get(0);
             QP::QF::gc(e);
         }
     };
 
-    PublishedEventRecorder(const PublishedEventRecorder &) = delete;
-    PublishedEventRecorder &operator=(const PublishedEventRecorder &) = delete;
-    PublishedEventRecorder(PublishedEventRecorder &&) = delete;
-    PublishedEventRecorder &operator=(PublishedEventRecorder &&) = delete;
+    PublishedEventRecorder(const PublishedEventRecorder&)            = delete;
+    PublishedEventRecorder& operator=(const PublishedEventRecorder&) = delete;
+    PublishedEventRecorder(PublishedEventRecorder&&)                 = delete;
+    PublishedEventRecorder& operator=(PublishedEventRecorder&&)      = delete;
 
-    void recorderStart(uint_fast8_t priority) {
-        SetPostedEventHandler([=](QP::QEvt const * e){
-            this->RecorderEventHandler(e);
-        });
+    void recorderStart(uint_fast8_t priority)
+    {
+        SetPostedEventHandler(
+          [=](QP::QEvt const* e) {
+              this->RecorderEventHandler(e);
+          });
 
         dummyStart(priority);
 
@@ -100,53 +102,52 @@ public:
         }
     }
 
-    bool isEmpty() const {
-        return m_recordedEvents.isEmpty();
-    }
+    bool isEmpty() const { return m_recordedEvents.isEmpty(); }
 
-    bool isAnyEventRecorded() const {
-        return !m_recordedEvents.isEmpty();
-    }
+    bool isAnyEventRecorded() const { return !m_recordedEvents.isEmpty(); }
 
-    bool isSignalRecorded(enum_t sig) {
+    bool isSignalRecorded(enum_t sig)
+    {
         if (!isAnyEventRecorded()) {
             return false;
         }
 
-        const auto e = getRecordedEvent<QP::QEvt>();
+        const auto e       = getRecordedEvent<QP::QEvt>();
         enum_t recordedSig = e->sig;
         return recordedSig == sig;
     }
 
-    template<class EvtT>
-    cms::QEvtUniquePtr<EvtT> getRecordedEvent() {
+    template <class EvtT> cms::QEvtUniquePtr<EvtT> getRecordedEvent()
+    {
         if (!isAnyEventRecorded()) {
             return cms::QEvtUniquePtr<EvtT>();
         }
 
-        return cms::QEvtUniquePtr<EvtT>(static_cast<QP::QEvt const *>(
-            m_recordedEvents.get(0)));
+        return cms::QEvtUniquePtr<EvtT>(
+          static_cast<QP::QEvt const*>(m_recordedEvents.get(0)));
     }
 
-    void oneShotIgnoreEvent(enum_t sigToIgnore) {
+    void oneShotIgnoreEvent(enum_t sigToIgnore)
+    {
         m_oneShotIgnoreSig = sigToIgnore;
     }
 
 protected:
-     void RecorderEventHandler(QP::QEvt const *  e) {
-         if ((e->sig >= m_startingValue) && (e->sig < m_endValue)) {
-             if (e->sig == m_oneShotIgnoreSig) {
-                 m_oneShotIgnoreSig = 0;
-             }
-             else {
-                 //record the event
-                 m_recordedEvents.post(e, QP::QF_NO_MARGIN, 0);
-             }
-         }
-     }
+    void RecorderEventHandler(QP::QEvt const* e)
+    {
+        if ((e->sig >= m_startingValue) && (e->sig < m_endValue)) {
+            if (e->sig == m_oneShotIgnoreSig) {
+                m_oneShotIgnoreSig = 0;
+            }
+            else {
+                // record the event
+                m_recordedEvents.post(e, QP::QF_NO_MARGIN, 0);
+            }
+        }
+    }
 };
 
-} //namespace test
-} //namespace cms
+}   // namespace test
+}   // namespace cms
 
-#endif //CMS_TEST_PUBLISHED_EVENT_RECORDER_HPP
+#endif   // CMS_TEST_PUBLISHED_EVENT_RECORDER_HPP

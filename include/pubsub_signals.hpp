@@ -17,9 +17,9 @@ enum Signals {
 
     DEMONSTRATE_TEST_OF_QASSERT,
 
-    MAX_PUB_SIG  // the last published signal
+    MAX_PUB_SIG   // the last published signal
 };
 
-} //namespace PubSub
+}   // namespace PubSub
 
-#endif //PUB_SUB_SIGNALS_HPP
+#endif   // PUB_SUB_SIGNALS_HPP

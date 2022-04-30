@@ -42,7 +42,7 @@ namespace cms {
 ///
 /// \tparam Components - the OrthogonalComponent derived classes to be
 ///                      instantiated and managed by this OrthogonalContainer
-template<typename... Components>
+template <typename... Components>
 class OrthogonalContainer : public QP::QActive {
 public:
     static constexpr std::size_t NumberOfComponents = sizeof...(Components);
@@ -51,51 +51,58 @@ public:
     using Tuple = std::tuple<Components...>;
 
     explicit OrthogonalContainer() :
-        QP::QActive(Q_STATE_CAST(initial)),
-        m_components(Components{this}...)  {
+        QP::QActive(Q_STATE_CAST(initial)), m_components(Components {this}...)
+    {
     }
 
 protected:
     // The 'ForEachInTuple' support inspired by:
     // https://stackoverflow.com/questions/26902633/how-to-iterate-over-a-stdtuple-in-c-11
-    template<class F, class...Ts, std::size_t...Is>
-    static void ForEachInTuple(std::tuple<Ts...> & tuple, F func, std::index_sequence<Is...>){
+    template <class F, class... Ts, std::size_t... Is>
+    static void ForEachInTuple(std::tuple<Ts...>& tuple, F func,
+                               std::index_sequence<Is...>)
+    {
         using expander = int[];
-        (void)expander { 0, ((void)func(std::get<Is>(tuple)), 0)... };
+        (void)expander {0, ((void)func(std::get<Is>(tuple)), 0)...};
     }
-    template<class F, class...Ts>
-    static void ForEachInTuple(std::tuple<Ts...> & tuple, F func){
+    template <class F, class... Ts>
+    static void ForEachInTuple(std::tuple<Ts...>& tuple, F func)
+    {
         ForEachInTuple(tuple, func, std::make_index_sequence<sizeof...(Ts)>());
     }
 
-    static QP::QState initial(OrthogonalContainer *const me, QP::QEvt const *const) {
-        ForEachInTuple(me->m_components, [](auto & component) {
-            component.start();
-        });
+    static QP::QState initial(OrthogonalContainer* const me,
+                              QP::QEvt const* const)
+    {
+        ForEachInTuple(me->m_components,
+                       [](auto& component) { component.start(); });
         return Q_TRAN(&running);
     }
 
-    static QP::QState running(OrthogonalContainer *const me, QP::QEvt const *const e) {
+    static QP::QState running(OrthogonalContainer* const me,
+                              QP::QEvt const* const e)
+    {
         QP::QState rtn;
         switch (e->sig) {
-            case Q_ENTRY_SIG:  //purposeful fall through
+            case Q_ENTRY_SIG:   // purposeful fall through
             case Q_EXIT_SIG:
             case Q_INIT_SIG:
                 rtn = Q_HANDLED();
                 break;
             default: {
-                    bool handled = false;
-                    ForEachInTuple(me->m_components, [e, &handled](auto &component) {
-                        handled |= component.componentDispatch(e);
-                    });
+                bool handled = false;
+                ForEachInTuple(me->m_components,
+                               [e, &handled](auto& component) {
+                                   handled |= component.componentDispatch(e);
+                               });
 
-                    if (handled) {
-                        rtn = Q_HANDLED();
-                    } else {
-                        rtn = Q_SUPER(&top);
-                    }
+                if (handled) {
+                    rtn = Q_HANDLED();
                 }
-                break;
+                else {
+                    rtn = Q_SUPER(&top);
+                }
+            } break;
         }
         return rtn;
     }
@@ -104,6 +111,6 @@ private:
     Tuple m_components;
 };
 
-} //namespace cms
+}   // namespace cms
 
-#endif  // CMS_ORTHOGONAL_CONTAINER_HPP
+#endif   // CMS_ORTHOGONAL_CONTAINER_HPP

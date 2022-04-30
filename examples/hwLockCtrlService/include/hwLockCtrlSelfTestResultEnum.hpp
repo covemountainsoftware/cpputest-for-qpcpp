@@ -27,11 +27,12 @@
 namespace cms {
 namespace HwLockCtrl {
 
-    enum class SelfTestResult {
-        PASS,
-        FAIL
-    };
-}
-}
+enum class SelfTestResult {
+    PASS,
+    FAIL,
+};
 
-#endif //HWLOCKCTRLSELFTESTRESULTENUM_HPP
+}
+}   // namespace cms
+
+#endif   // HWLOCKCTRLSELFTESTRESULTENUM_HPP

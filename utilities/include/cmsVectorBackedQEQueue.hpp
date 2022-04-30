@@ -36,20 +36,21 @@ namespace cms {
 class VectorBackedQEQueue : public QP::QEQueue {
 public:
     explicit VectorBackedQEQueue(std::uint_fast16_t maxEvents) :
-            QP::QEQueue(),
-            m_storage(maxEvents) {
+        QP::QEQueue(), m_storage(maxEvents)
+    {
         std::fill(m_storage.begin(), m_storage.end(), nullptr);
         init(m_storage.data(), m_storage.size());
     }
 
-    size_t capacity() const {
-        return m_storage.size() + 1; //see QEQueue docs for +1 reason
+    size_t capacity() const
+    {
+        return m_storage.size() + 1;   // see QEQueue docs for +1 reason
     }
 
 private:
-    std::vector<QP::QEvt const *> m_storage;
+    std::vector<QP::QEvt const*> m_storage;
 };
 
-}  //namespace cms
+}   // namespace cms
 
-#endif //CMS_VECTOR_BACKED_QEQUEUE_HPP
+#endif   // CMS_VECTOR_BACKED_QEQUEUE_HPP

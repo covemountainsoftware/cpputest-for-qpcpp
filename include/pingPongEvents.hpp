@@ -34,14 +34,15 @@ namespace cms {
 ///          the provided requester and response sig.
 ///
 class Ping : public QP::QEvt {
-   public:
+public:
     QP::QActive* m_requester;
-    enum_t       responseSig;
+    enum_t responseSig;
 
-    template<enum_t sig>
-    static void sendTo(QP::QActive* destination, enum_t responseSig, QP::QActive* requester)
+    template <enum_t sig>
+    static void sendTo(QP::QActive* destination, enum_t responseSig,
+                       QP::QActive* requester)
     {
-        auto e = Q_NEW(Ping, sig);
+        auto e         = Q_NEW(Ping, sig);
         e->m_requester = requester;
         e->responseSig = responseSig;
         destination->POST(e, 0);
@@ -52,17 +53,18 @@ class Ping : public QP::QEvt {
 ///          an active object that supports a Ping
 ///          event.
 class Pong : public QP::QEvt {
-   public:
+public:
     QP::QActive* m_source;
 
-    static void sendTo(QP::QActive* destination, enum_t pongSig, QP::QActive* source)
+    static void sendTo(QP::QActive* destination, enum_t pongSig,
+                       QP::QActive* source)
     {
-        auto e = Q_NEW(Pong, pongSig);
+        auto e      = Q_NEW(Pong, pongSig);
         e->m_source = source;
         destination->POST(e, 0);
     }
 };
 
-} //namespace cms
+}   // namespace cms
 
-#endif  // PING_PONG_EVENTS_HPP
+#endif   // PING_PONG_EVENTS_HPP

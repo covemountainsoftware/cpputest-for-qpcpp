@@ -30,27 +30,25 @@
 namespace cms {
 namespace HwLockCtrl {
 
-    ///event type holding the results of a
-    ///HwLockCtrl Service Self Test.
-    ///note the handy 'publish' static method.
-    class SelfTestEvent : public QP::QEvt {
-    public:
-        SelfTestResult m_result;
+/// event type holding the results of a
+/// HwLockCtrl Service Self Test.
+/// note the handy 'publish' static method.
+class SelfTestEvent : public QP::QEvt {
+public:
+    SelfTestResult m_result;
 
-        explicit SelfTestEvent(SelfTestResult result) :
-                QP::QEvt(),
-                m_result(result)
-        {
-        }
+    explicit SelfTestEvent(SelfTestResult result) : QP::QEvt(), m_result(result)
+    {
+    }
 
-        template<enum_t sig>
-        static void publish(SelfTestResult result)
-        {
-            auto e = Q_NEW(SelfTestEvent, sig);
-            e->m_result = result;
-            QP::QF::PUBLISH(e, nullptr);
-        }
-    };
-}
-}
-#endif //HWLOCKCTRLSELFTESTEVENT_HPP
+    template <enum_t sig> static void publish(SelfTestResult result)
+    {
+        auto e      = Q_NEW(SelfTestEvent, sig);
+        e->m_result = result;
+        QP::QF::PUBLISH(e, nullptr);
+    }
+};
+
+}   // namespace HwLockCtrl
+}   // namespace cms
+#endif   // HWLOCKCTRLSELFTESTEVENT_HPP

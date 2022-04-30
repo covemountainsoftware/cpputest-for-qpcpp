@@ -5,7 +5,7 @@
 #include <cstdint>
 
 namespace bsp {
-    static constexpr uint32_t TICKS_PER_SECOND = 100;
-} //namespace bsp
+static constexpr uint32_t TICKS_PER_SECOND = 100;
+}   // namespace bsp
 
-#endif //BSP_TICKS_HPP
+#endif   // BSP_TICKS_HPP

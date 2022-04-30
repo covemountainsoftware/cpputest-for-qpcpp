@@ -35,21 +35,22 @@ namespace cms {
 /// \tparam MaxEvents
 template <std::uint_fast16_t MaxEvents>
 class ArrayBackedQEQueue : public QP::QEQueue {
-   public:
+public:
     ArrayBackedQEQueue() : QEQueue(), m_storage()
     {
         m_storage.fill(nullptr);
         init(m_storage.data(), MaxEvents);
     }
 
-    size_t capacity() const {
-        return m_storage.size() + 1; //see QEQueue docs for +1 reason
+    size_t capacity() const
+    {
+        return m_storage.size() + 1;   // see QEQueue docs for +1 reason
     }
 
-   private:
-    std::array<QP::QEvt const *, MaxEvents> m_storage;
+private:
+    std::array<QP::QEvt const*, MaxEvents> m_storage;
 };
 
-} //namespace
+}   // namespace cms
 
-#endif  // CMS_ARRAY_BACKED_QEQUEUE_HPP
+#endif   // CMS_ARRAY_BACKED_QEQUEUE_HPP

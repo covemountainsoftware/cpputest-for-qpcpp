@@ -1,4 +1,5 @@
-/// @brief Provides an implementation of the required QP function Q_onAssert(..).
+/// @brief Provides an implementation of the required QP function
+/// Q_onAssert(..).
 ///        This implementation uses cpputest mock and the TEST_EXIT macro
 ///        which throws an exception. This will generally not work in most
 ///        of QP, as most methods are marked noexcept.
@@ -25,13 +26,13 @@
 ///***************************************************************************
 /// @endcond
 
-#include "qassert.h"
 #include "CppUTest/TestHarness.h"
+#include "qassert.h"
 #include "qassertMockSupport.hpp"
 
-Q_NORETURN Q_onAssert(char const * const file, int_t const loc) {
-
-    //fprintf(stderr, "%s(%s , %d)\n", __FUNCTION__ , file, loc);
+Q_NORETURN Q_onAssert(char const* const file, int_t const loc)
+{
+    // fprintf(stderr, "%s(%s , %d)\n", __FUNCTION__ , file, loc);
 
     // The TEST_EXIT macro used below is throwing an exception.
     // However, many of QP/QF methods are marked as 'noexcept'
@@ -45,10 +46,9 @@ Q_NORETURN Q_onAssert(char const * const file, int_t const loc) {
     //    the function std::terminate ... is called ..."
     //
     mock(cms::test::QASSERT_MOCK_NAME)
-        .actualCall(cms::test::ONASSERT_FUNC_NAME)
-        .withParameter("file", file)
-        .withParameter("loc", loc);
+      .actualCall(cms::test::ONASSERT_FUNC_NAME)
+      .withParameter("file", file)
+      .withParameter("loc", loc);
 
     TEST_EXIT
 }
-

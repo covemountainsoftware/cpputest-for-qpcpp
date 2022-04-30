@@ -29,24 +29,26 @@
 
 namespace cms {
 namespace test {
-    
-    static constexpr const char * QASSERT_MOCK_NAME = "QASSERT";
-    static constexpr const char * ONASSERT_FUNC_NAME = "Q_onAssert";
 
-    inline void MockExpectQAssert() {
-        mock(QASSERT_MOCK_NAME)
-            .expectOneCall(ONASSERT_FUNC_NAME)
-            .ignoreOtherParameters();
-    }
+static constexpr const char* QASSERT_MOCK_NAME  = "QASSERT";
+static constexpr const char* ONASSERT_FUNC_NAME = "Q_onAssert";
 
-    inline void MockExpectQAssert(const char * file, int loc) {
-        mock(QASSERT_MOCK_NAME)
-                .expectOneCall(ONASSERT_FUNC_NAME)
-                .withParameter("file", file)
-                .withParameter("loc", loc);
-    }
-    
-} //namespace test
-} //namespace cms
+inline void MockExpectQAssert()
+{
+    mock(QASSERT_MOCK_NAME)
+      .expectOneCall(ONASSERT_FUNC_NAME)
+      .ignoreOtherParameters();
+}
 
-#endif //CPPUTEST_FOR_QPCPP_QASSERTMOCKSUPPORT_HPP
+inline void MockExpectQAssert(const char* file, int loc)
+{
+    mock(QASSERT_MOCK_NAME)
+      .expectOneCall(ONASSERT_FUNC_NAME)
+      .withParameter("file", file)
+      .withParameter("loc", loc);
+}
+
+}   // namespace test
+}   // namespace cms
+
+#endif   // CPPUTEST_FOR_QPCPP_QASSERTMOCKSUPPORT_HPP

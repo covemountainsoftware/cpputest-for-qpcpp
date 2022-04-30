@@ -26,61 +26,64 @@
 #ifndef CMS_DUMMY_ACTIVE_OBJECT_HPP
 #define CMS_DUMMY_ACTIVE_OBJECT_HPP
 
-#include <functional>
-#include <array>
 #include "qpcpp.hpp"
-
+#include <array>
+#include <functional>
 
 namespace cms {
 
 /// The Dummy Active Object may be used
 /// when an active object (AO) under test is
 /// interacting with another AO during a test.
-template<size_t InternalEventCount>
+template <size_t InternalEventCount>
 class DummyActiveObject : public QP::QActive {
 public:
-    using PostedEventHandler = std::function<void(QP::QEvt const * )>;
+    using PostedEventHandler = std::function<void(QP::QEvt const*)>;
 
     explicit DummyActiveObject() :
-        QP::QActive(Q_STATE_CAST(initial)),
-        m_eventHandler(nullptr),
-        m_incomingEvents() {
+        QP::QActive(Q_STATE_CAST(initial)), m_eventHandler(nullptr),
+        m_incomingEvents()
+    {
         m_incomingEvents.fill(nullptr);
     }
 
-    DummyActiveObject(const DummyActiveObject &) = delete;
-    DummyActiveObject &operator=(const DummyActiveObject &) = delete;
-    DummyActiveObject(DummyActiveObject &&) = delete;
-    DummyActiveObject &operator=(DummyActiveObject &&) = delete;
+    DummyActiveObject(const DummyActiveObject&)            = delete;
+    DummyActiveObject& operator=(const DummyActiveObject&) = delete;
+    DummyActiveObject(DummyActiveObject&&)                 = delete;
+    DummyActiveObject& operator=(DummyActiveObject&&)      = delete;
 
-    void SetPostedEventHandler(const PostedEventHandler& handler) {
+    void SetPostedEventHandler(const PostedEventHandler& handler)
+    {
         m_eventHandler = handler;
     }
 
-    void dummyStart(uint_fast8_t priority = 1) {
-        start(priority,
-              m_incomingEvents.data(), m_incomingEvents.size(),
+    void dummyStart(uint_fast8_t priority = 1)
+    {
+        start(priority, m_incomingEvents.data(), m_incomingEvents.size(),
               nullptr, 0);
     }
 
 protected:
-
-    static QP::QState initial(DummyActiveObject *const me, QP::QEvt const *const) {
+    static QP::QState initial(DummyActiveObject* const me,
+                              QP::QEvt const* const)
+    {
         return Q_TRAN(&running);
     }
 
-    static QP::QState running(DummyActiveObject *const me, QP::QEvt const *const e) {
+    static QP::QState running(DummyActiveObject* const me,
+                              QP::QEvt const* const e)
+    {
         QP::QState rtn;
         switch (e->sig) {
             case Q_INIT_SIG:
                 rtn = Q_SUPER(&top);
                 break;
-            case Q_ENTRY_SIG:  //purposeful fall through
+            case Q_ENTRY_SIG:   // purposeful fall through
             case Q_EXIT_SIG:
                 rtn = Q_HANDLED();
                 break;
             default:
-                if ((me->m_eventHandler != nullptr) && (e->sig != 0)){
+                if ((me->m_eventHandler != nullptr) && (e->sig != 0)) {
                     me->m_eventHandler(e);
                 }
                 rtn = Q_SUPER(&top);
@@ -91,13 +94,12 @@ protected:
     }
 
 private:
-    PostedEventHandler             m_eventHandler;
-    std::array<QP::QEvt const *,
-               InternalEventCount> m_incomingEvents;
+    PostedEventHandler m_eventHandler;
+    std::array<QP::QEvt const*, InternalEventCount> m_incomingEvents;
 };
 
 using DefaultDummyActiveObject = DummyActiveObject<50>;
 
-} //namespace cms
+}   // namespace cms
 
-#endif  // CMS_DUMMY_ACTIVE_OBJECT_HPP
+#endif   // CMS_DUMMY_ACTIVE_OBJECT_HPP

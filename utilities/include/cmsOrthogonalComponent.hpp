@@ -40,31 +40,32 @@ public:
     explicit OrthogonalComponent(QP::QActive* container,
                                  QP::QStateHandler const initial,
                                  std::uint_fast8_t const qs_id = 0) :
-       QP::QHsm(initial),
-       m_container(container),
-       m_qs_id (qs_id) {
+        QP::QHsm(initial),
+        m_container(container), m_qs_id(qs_id)
+    {
     }
 
-    OrthogonalComponent(const OrthogonalComponent &) = delete;
-    OrthogonalComponent &operator=(const OrthogonalComponent &) = delete;
-    OrthogonalComponent &operator=(OrthogonalComponent&& other) = delete;
+    OrthogonalComponent(const OrthogonalComponent&)             = delete;
+    OrthogonalComponent& operator=(const OrthogonalComponent&)  = delete;
+    OrthogonalComponent& operator=(OrthogonalComponent&& other) = delete;
 
     /// @note Due to the way the OrthogonalContainer creates Components,
     ///       a valid move constructor is required
     ///       of any concrete Component
     OrthogonalComponent(OrthogonalComponent&& other) noexcept :
-        QP::QHsm(other),
-        m_container(other.m_container),
-        m_qs_id(other.m_qs_id) {
+        QP::QHsm(other), m_container(other.m_container), m_qs_id(other.m_qs_id)
+    {
     }
 
-    void start() {
+    void start()
+    {
         assert(m_container != nullptr);
         subscribe();
         init(nullptr, m_qs_id);
     }
 
-    bool componentDispatch(QP::QEvt const * const e)  {
+    bool componentDispatch(QP::QEvt const* const e)
+    {
         assert(m_container != nullptr);
         bool desired = isSignalDesired(e->sig);
         if (desired) {
@@ -90,10 +91,10 @@ protected:
     /// 'm_container' active object context.
     virtual void subscribe() = 0;
 
-    QP::QActive*      m_container;
+    QP::QActive* m_container;
     std::uint_fast8_t m_qs_id;
 };
 
-} //namespace cms
+}   // namespace cms
 
-#endif  // CMS_ORTHOGONAL_COMPONENT_HPP
+#endif   // CMS_ORTHOGONAL_COMPONENT_HPP
