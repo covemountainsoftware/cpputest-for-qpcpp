@@ -1,5 +1,5 @@
 
-set(CPPUTEST_QP_PORT_TOP_DIR ${TEST_TOP_DIR}/cpputest-qpcpp-port)
+set(CPPUTEST_QP_PORT_TOP_DIR ${TEST_SUPPORT_TOP_DIR}/cpputest-qpcpp-port)
 set(CPPUTEST_QP_PORT_SRC_DIR ${CPPUTEST_QP_PORT_TOP_DIR}/src)
 set(CPPUTEST_QP_PORT_SRC_FILES
         ${CPPUTEST_QP_PORT_SRC_DIR}/cpputest_qf_port.cpp
