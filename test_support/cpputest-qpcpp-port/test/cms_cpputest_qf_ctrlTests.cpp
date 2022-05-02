@@ -33,24 +33,30 @@ extern std::uint_fast8_t QF_maxPool_;
 
 using namespace cms::test;
 
-TEST_GROUP(qf_ctrlTests) {void setup() final {}
-
-                          void teardown() final {cms::test::qf_ctrl::Teardown();
-}
-
-void ConfirmNumberOfPools(uint32_t poolCount)
+TEST_GROUP(qf_ctrlTests)
 {
-    CHECK_EQUAL(poolCount, QP::QF_maxPool_);
-}
+    void setup() final
+    {
+    }
 
-void ConfirmPoolEventSize(uint32_t poolIndex, uint32_t blockSize)
-{
-    CHECK_TRUE(poolIndex < QF_MAX_EPOOL);
-    CHECK_TRUE(poolIndex < QP::QF_maxPool_);
-    CHECK_EQUAL(blockSize, QP::QF_pool_[poolIndex].getBlockSize());
-}
-}
-;
+    void teardown() final
+    {
+        cms::test::qf_ctrl::Teardown();
+    }
+
+    void ConfirmNumberOfPools(uint32_t poolCount)
+    {
+        CHECK_EQUAL(poolCount, QP::QF_maxPool_);
+    }
+
+    void ConfirmPoolEventSize(uint32_t poolIndex, uint32_t blockSize)
+    {
+        CHECK_TRUE(poolIndex < QF_MAX_EPOOL);
+        CHECK_TRUE(poolIndex < QP::QF_maxPool_);
+        CHECK_EQUAL(blockSize, QP::QF_pool_[poolIndex].getBlockSize());
+    }
+};
+
 
 TEST(qf_ctrlTests, by_default_setup_creates_three_pubsub_pools)
 {

@@ -26,22 +26,28 @@
 
 Q_DEFINE_THIS_MODULE("QAssertTests");
 
-TEST_GROUP(QAssertTests) {
-    void setup() final {
+TEST_GROUP(QAssertTests)
+{
+    void setup() final
+    {
     }
 
-    void teardown() final {
+    void teardown() final
+    {
         mock().clear();
     }
 };
 
-TEST(QAssertTests, Q_Assert_results_in_expected_mock_hit_and_proper_test_exit) {
+TEST(QAssertTests, Q_Assert_results_in_expected_mock_hit_and_proper_test_exit)
+{
     cms::test::MockExpectQAssert();
     Q_ASSERT(true == false);
     mock().checkExpectations();
 }
 
-TEST(QAssertTests, Q_Assert_with_id_results_in_expected_mock_hit_and_proper_test_exit) {
+TEST(QAssertTests,
+     Q_Assert_with_id_results_in_expected_mock_hit_and_proper_test_exit)
+{
     constexpr int TEST_ID = 1234;
 
     cms::test::MockExpectQAssert(Q_this_module_, TEST_ID);
