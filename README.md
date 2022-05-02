@@ -144,7 +144,7 @@ provides examples of:
 ## Testing Active Objects using CppUTest
 
 CppUTest support for testing active objects is provided by various files
-in the `test` subdirectory, especially `test/cpputest-qpcpp-port.`
+in the `test_support` subdirectory, especially `test_support/cpputest-qpcpp-port.`
 
 Of particular interest is the `cms::test:qf_ctrl` module, which 
 provides for convenience and helper methods such as:
