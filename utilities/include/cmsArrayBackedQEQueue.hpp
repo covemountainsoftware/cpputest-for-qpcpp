@@ -24,7 +24,7 @@
 #ifndef CMS_ARRAY_BACKED_QEQUEUE_HPP
 #define CMS_ARRAY_BACKED_QEQUEUE_HPP
 
-#include "qpcpp.h"
+#include "qpcpp.hpp"
 #include <cstdint>
 #include <array>
 

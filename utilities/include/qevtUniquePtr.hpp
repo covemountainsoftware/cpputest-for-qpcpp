@@ -24,7 +24,7 @@
 #ifndef CMS_QEVT_UNIQUE_PTR_HPP
 #define CMS_QEVT_UNIQUE_PTR_HPP
 
-#include "qpcpp.h"
+#include "qpcpp.hpp"
 #include <utility>
 
 namespace cms {

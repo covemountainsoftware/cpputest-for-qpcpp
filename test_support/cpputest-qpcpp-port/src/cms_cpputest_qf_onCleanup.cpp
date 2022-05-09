@@ -1,6 +1,6 @@
 
 #include "CppUTest/TestHarness.h"
-#include "qpcpp.h"
+#include "qpcpp.hpp"
 
 namespace QP {
 
@@ -11,7 +11,7 @@ void QF::onCleanup()
 {
     for (int i = 0; i < QF_maxPool_; ++i) {
         CHECK_TRUE_TEXT(QF_pool_[i].m_nTot == QF_pool_[i].m_nFree,
-                        "A leak was detected in an internal QF event pool!");
+                        "A leak was detected in an internal QF event pool!")
     }
 }
 

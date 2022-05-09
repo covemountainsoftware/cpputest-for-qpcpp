@@ -24,7 +24,7 @@
 
 #include "cms_cpputest_qf_ctrl.hpp"
 #include "cmsTestPublishedEventRecorder.hpp"
-#include "qpcpp.h"
+#include "qpcpp.hpp"
 #include <algorithm>
 #include <cassert>
 #include <cstdint>
@@ -126,13 +126,17 @@ void MoveTimeForward(const std::chrono::milliseconds& duration)
     assert(l_ticksPerSecond != 0);
     assert(duration.count() >= 0);
 
+    using LoopCounter_t = uint64_t;
+
+    constexpr LoopCounter_t ONCE = 1;
+
     double millisecondsPerTick = 1000.0 / l_ticksPerSecond;
 
     // if called, ensure at least one tick is processed
-    uint64_t ticks = std::max(
-      1UL, static_cast<uint64_t>(duration.count() / millisecondsPerTick));
+    LoopCounter_t ticks = std::max(
+      ONCE, static_cast<LoopCounter_t>(duration.count() / millisecondsPerTick));
 
-    for (uint64_t i = 0; i < ticks; ++i) {
+    for (LoopCounter_t i = 0; i < ticks; ++i) {
         QP::QF::tickX_(0U);
         ProcessEvents();
     }

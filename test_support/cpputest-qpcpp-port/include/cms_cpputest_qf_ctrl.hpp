@@ -26,7 +26,7 @@
 #define CPPUTEST_FOR_QPCPP_CMS_CPPUTEST_QF_CTRL_HPP
 
 #include <chrono>
-#include "qpcpp.h"
+#include "qpcpp.hpp"
 #include <vector>
 
 namespace cms {

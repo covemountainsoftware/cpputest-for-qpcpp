@@ -28,7 +28,10 @@
 
 using namespace cms;
 
-TEST_GROUP(BackedQueueTests) {void setup() final {} void teardown() final {}};
+TEST_GROUP(BackedQueueTests) {
+  void setup() final {}
+  void teardown() final {}
+};
 
 TEST(BackedQueueTests, can_create_vector_backed_qequeue)
 {

@@ -24,7 +24,7 @@
 #ifndef HWLOCKCTRLSELFTESTEVENT_HPP
 #define HWLOCKCTRLSELFTESTEVENT_HPP
 
-#include "qpcpp.h"
+#include "qpcpp.hpp"
 #include "hwLockCtrlSelfTestResultEnum.hpp"
 
 namespace cms {

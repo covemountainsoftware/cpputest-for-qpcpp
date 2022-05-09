@@ -21,7 +21,7 @@
 ///***************************************************************************
 /// @endcond
 
-#include "qpcpp.h"
+#include "qpcpp.hpp"
 #include "cms_cpputest_qf_ctrl.hpp"
 #include "cmsTestPublishedEventRecorder.hpp"
 #include "CppUTest/TestHarness.h"

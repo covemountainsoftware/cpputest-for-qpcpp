@@ -23,7 +23,7 @@
 
 #include "cmsTestPublishedEventRecorder.hpp"
 #include "cms_cpputest_qf_ctrl.hpp"
-#include "qpcpp.h"
+#include "qpcpp.hpp"
 #include "CppUTest/TestHarness.h"
 
 using namespace cms::test;

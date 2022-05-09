@@ -23,7 +23,7 @@
 
 #include "cmsDummyActiveObject.hpp"
 #include "cms_cpputest_qf_ctrl.hpp"
-#include "qpcpp.h"
+#include "qpcpp.hpp"
 #include "CppUTest/TestHarness.h"
 
 namespace QP {

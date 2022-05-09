@@ -5,7 +5,7 @@
 #ifndef PUB_SUB_SIGNALS_HPP
 #define PUB_SUB_SIGNALS_HPP
 
-#include "qpcpp.h"
+#include "qpcpp.hpp"
 
 namespace PubSub {
 
