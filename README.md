@@ -55,7 +55,10 @@ be compatible with this code.
 * qpcpp (pulled in as a git submodule)
   * After cloning this repository, do not forget to:
   * `git submodule init`
-  * `git submodule update`
+  * `git submodule update --recursive`
+  * NOTE: As of January 2023, qpcpp is also using submodules. Developers
+    may need to perform similar steps within the externals/qpcpp/ 
+    directory as well.
 * CppUTest (version 3.8-7, the default in Ubuntu 20.04)
 * CMake and associated build tools were used to develop
   and prove out this project.

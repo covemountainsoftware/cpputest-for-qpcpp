@@ -26,10 +26,9 @@ QPSet cpputest_readySet_;   // ready set of active objects
 //****************************************************************************
 void QF::init()
 {
-    QF_maxPool_ = static_cast<uint_fast8_t>(0);
-    bzero(&QF::timeEvtHead_[0],
-          static_cast<uint_fast16_t>(sizeof(QF::timeEvtHead_)));
-    bzero(&active_[0], static_cast<uint_fast16_t>(sizeof(active_)));
+    QF::maxPool_ = static_cast<uint_fast8_t>(0);
+    bzero(&QP::QTimeEvt::timeEvtHead_[0], sizeof(QP::QTimeEvt::timeEvtHead_));
+    bzero(&QP::QActive::registry_[0], sizeof(QP::QActive::registry_));
 }
 
 #if PURPOSEFULLY_NOT_IMPLEMENTED_
@@ -44,7 +43,7 @@ void QF_runUntilNoReadyActiveObjects()
 {
     while (cpputest_readySet_.notEmpty()) {
         std::uint_fast8_t p = cpputest_readySet_.findMax();
-        QActive* a          = QF::active_[p];
+        QActive* a          = QP::QActive::registry_[p];
 
         // the active object 'a' must still be registered in QF
         // (e.g., it must not be stopped)
@@ -57,7 +56,7 @@ void QF_runUntilNoReadyActiveObjects()
         }
 
         if (a->m_eQueue.isEmpty()) { /* empty queue? */
-            cpputest_readySet_.rmove(p);
+            cpputest_readySet_.remove(p);
         }
     }
 }
@@ -69,23 +68,23 @@ void QF::stop()
 }
 
 //****************************************************************************
-void QActive::start(std::uint_fast8_t const priority, QEvt const** const qSto,
-                    std::uint_fast16_t const qLen, void* const stkSto,
-                    std::uint_fast16_t const stkSize, void const* const par)
+void QActive::start( QPrioSpec const prioSpec,
+                    QEvt const * * const qSto, std::uint_fast16_t const qLen,
+                    void * const stkSto, std::uint_fast16_t const stkSize,
+                    void const * const par)
 {
-    (void)stkSize;   // unused parameter in the cpputest port
+    // unused parameters in the cpputest port
+    Q_UNUSED_PAR(stkSto);
+    Q_UNUSED_PAR(stkSize);
 
-    Q_REQUIRE_ID(
-      600, (0U < priority)                  /* priority...*/
-             && (priority <= QF_MAX_ACTIVE) /*.. in range */
-             && (stkSto == nullptr));   // stack storage must NOT be provided
+    m_prio  = static_cast<std::uint8_t>(prioSpec & 0xFFU); // QF-priority
+    m_pthre = static_cast<std::uint8_t>(prioSpec >> 8U); // preemption-thre.
+    register_(); // make QF aware of this AO
+
     m_eQueue.init(qSto, qLen);
 
-    m_prio =
-      static_cast<std::uint8_t>(priority);   // set the QF priority of this AO
-    QF::add_(this);                          // make QF aware of this AO
-
-    this->init(par, m_prio);   // execute initial transition (virtual call)
+    this->init(par, m_prio); // execute initial transition (virtual call)
+    QS_FLUSH(); // flush the QS trace buffer to the host
 }
 
 //............................................................................
@@ -93,8 +92,8 @@ void QActive::start(std::uint_fast8_t const priority, QEvt const** const qSto,
 void QActive::stop()
 {
     unsubscribeAll();
-    cpputest_readySet_.rmove(m_prio);
-    QF::remove_(this);
+    cpputest_readySet_.remove(m_prio);
+    unregister_();
 }
 #endif
 

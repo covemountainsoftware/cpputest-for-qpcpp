@@ -47,7 +47,7 @@ public:
     enum DirectSignals { PING = PubSub::MAX_PUB_SIG, MAX_DIRECT_SIG };
 
     Service();
-    ~Service() override                = default;
+    ~Service()                         = default;
 
     Service(const Service&)            = delete;
     Service& operator=(const Service&) = delete;

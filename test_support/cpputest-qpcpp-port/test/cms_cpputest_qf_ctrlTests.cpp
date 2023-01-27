@@ -25,11 +25,7 @@
 #include "cms_cpputest_qf_ctrl.hpp"
 #include "qpcpp.hpp"
 #include "CppUTest/TestHarness.h"
-
-namespace QP {
-extern QMPool QF_pool_[QF_MAX_EPOOL];
-extern std::uint_fast8_t QF_maxPool_;
-}   // namespace QP
+#include "qf_pkg.hpp"
 
 using namespace cms::test;
 
@@ -46,14 +42,14 @@ TEST_GROUP(qf_ctrlTests)
 
     void ConfirmNumberOfPools(uint32_t poolCount)
     {
-        CHECK_EQUAL(poolCount, QP::QF_maxPool_);
+        CHECK_EQUAL(poolCount, QP::QF::maxPool_);
     }
 
     void ConfirmPoolEventSize(uint32_t poolIndex, uint32_t blockSize)
     {
         CHECK_TRUE(poolIndex < QF_MAX_EPOOL);
-        CHECK_TRUE(poolIndex < QP::QF_maxPool_);
-        CHECK_EQUAL(blockSize, QP::QF_pool_[poolIndex].getBlockSize());
+        CHECK_TRUE(poolIndex < QP::QF::maxPool_);
+        CHECK_EQUAL(blockSize, QP::QF::ePool_[poolIndex].getBlockSize());
     }
 };
 

@@ -84,7 +84,7 @@ TEST(BackedQueueTests, can_push_up_to_max_events)
     // fill up the queue
     static QP::QEvt testEvent {5, 0, 0};
     for (size_t i = 0; i < underTest->capacity(); ++i) {
-        underTest->post(&testEvent, QP::QF_NO_MARGIN, 0);
+        underTest->post(&testEvent, QP::QF::NO_MARGIN, 0);
     }
 
     // confirm full

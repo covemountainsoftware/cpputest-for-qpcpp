@@ -30,6 +30,7 @@
 #include <cstdint>
 #include <vector>
 #include "CppUTest/TestHarness.h"
+#include "qf_pkg.hpp"
 
 namespace cms {
 namespace test {
@@ -99,6 +100,8 @@ void Teardown()
 
     l_ticksPerSecond = 0;
 
+    QF::stop();
+
     // No test should complete with allocated events sitting
     // in a memory pool. However, the QP Pool class
     // is rather private. Ideally that
@@ -107,7 +110,13 @@ void Teardown()
     // internally will perform the memory check, as it has
     // friend access.
     if (l_memPoolOption == MemPoolTeardownOption::CHECK_FOR_LEAKS) {
-        QF::stop();
+        for (size_t i = 0; i < l_pubSubEventMemPoolConfigs->size(); ++i) {
+
+            const size_t poolNumOfEvents = l_pubSubEventMemPoolConfigs->at(i).config.numberOfEvents;
+
+            CHECK_TRUE_TEXT(poolNumOfEvents == QP::QF::ePool_[i].getNFree(),
+                            "A leak was detected in an internal QF event pool!")
+        }
     }
 
     if (l_pubSubEventMemPoolConfigs != nullptr) {
@@ -137,7 +146,7 @@ void MoveTimeForward(const std::chrono::milliseconds& duration)
       ONCE, static_cast<LoopCounter_t>(duration.count() / millisecondsPerTick));
 
     for (LoopCounter_t i = 0; i < ticks; ++i) {
-        QP::QF::tickX_(0U);
+        QP::QTimeEvt::tick_(0, nullptr);
         ProcessEvents();
     }
 }

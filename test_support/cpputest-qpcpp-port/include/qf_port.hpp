@@ -38,10 +38,15 @@
 #ifndef QF_PORT_HPP
 #define QF_PORT_HPP
 
+// provide QP::QHsm virtual destructor
+#define Q_HSM_XTOR 1
+
 // event queue and thread types
 #define QF_EQUEUE_TYPE       QEQueue
 // QF_OS_OBJECT_TYPE  not used
 // QF_THREAD_TYPE     not used
+
+#define QF_EPOOL_TYPE_ QMPool
 
 // The maximum number of active objects in the application
 #define QF_MAX_ACTIVE        64U
@@ -69,7 +74,6 @@
 #include "qep_port.hpp"  // QEP port
 #include "qequeue.hpp"   // POSIX-QV needs event-queue
 #include "qmpool.hpp"    // POSIX-QV needs memory-pool
-#include "qpset.hpp"     // POSIX-QV needs priority-set
 #include "qf.hpp"        // QF platform-independent public interface
 
 namespace QP {

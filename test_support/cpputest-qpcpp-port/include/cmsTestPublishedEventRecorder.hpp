@@ -141,7 +141,7 @@ protected:
             }
             else {
                 // record the event
-                m_recordedEvents.post(e, QP::QF_NO_MARGIN, 0);
+                m_recordedEvents.post(e, QP::QF::NO_MARGIN, 0);
             }
         }
     }
