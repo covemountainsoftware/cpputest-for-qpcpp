@@ -115,7 +115,7 @@ void Teardown()
             const size_t poolNumOfEvents = l_pubSubEventMemPoolConfigs->at(i).config.numberOfEvents;
 
             CHECK_TRUE_TEXT(poolNumOfEvents == QP::QF::ePool_[i].getNFree(),
-                            "A leak was detected in an internal QF event pool!")
+                            "A leak was detected in an internal QF event pool!");
         }
     }
 
