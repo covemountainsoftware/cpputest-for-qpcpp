@@ -122,7 +122,7 @@ TEST(qf_ctrlTests,
             sigTwoCount++;
         }
         else {
-            TEST_EXIT
+            TEST_EXIT;
         }
     });
 

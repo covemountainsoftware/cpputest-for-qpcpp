@@ -29,6 +29,7 @@
 #include "qpcpp.hpp"
 #include <array>
 #include <functional>
+#include <cstddef>
 
 namespace cms {
 

@@ -50,5 +50,5 @@ Q_NORETURN Q_onAssert(char const* const file, int_t const loc)
       .withParameter("file", file)
       .withParameter("loc", loc);
 
-    TEST_EXIT
+    TEST_EXIT;
 }
