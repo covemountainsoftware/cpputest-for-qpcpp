@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<model version="5.2.3" links="0">
+ <documentation>Copyright (c) 2023 Victor Chavez
+SPDX-License-Identifier: GPL-3.0-or-later
+
+A QM Demonstration model for integration with Zephyr QPCPP CPPUTEST framework</documentation>
+ <framework name="qpcpp"/>
+ <package name="demo" stereotype="0x00">
+  <class name="Alarm" superclass="qpcpp::QActive">
+   <attribute name="m_driver" type="AlarmDriver" visibility="0x02" properties="0x00"/>
+   <operation name="Alarm" type="" visibility="0x00" properties="0x00">
+    <code>: QActive(Q_STATE_CAST(&amp;initial))</code>
+   </operation>
+   <statechart properties="0x00">
+    <initial target="../1">
+     <action>subscribe(Timeout_SIG);
+subscribe(Reset_SIG);</action>
+     <initial_glyph conn="11,24,5,3,8">
+      <action box="0,-2,10,2"/>
+     </initial_glyph>
+    </initial>
+    <state name="wait_timeout">
+     <documentation>/* Wait for a timeout of the alarm */</documentation>
+     <entry>m_driver.set_alarm(ALARM_TIME);</entry>
+     <tran trig="Timeout" target="../../2">
+      <tran_glyph conn="37,23,1,3,9">
+       <action box="0,-2,10,2"/>
+      </tran_glyph>
+     </tran>
+     <state_glyph node="19,15,18,14">
+      <entry box="1,2,6,2"/>
+     </state_glyph>
+    </state>
+    <state name="wait_reset">
+     <documentation>/* Wait for a reset of the alarm */</documentation>
+     <tran trig="Reset" target="../../1">
+      <action>m_driver.reset();</action>
+      <tran_glyph conn="46,26,3,1,-9">
+       <action box="-8,1,10,2"/>
+      </tran_glyph>
+     </tran>
+     <state_glyph node="46,15,19,14"/>
+    </state>
+    <state_diagram size="80,50"/>
+   </statechart>
+  </class>
+ </package>
+ <directory name="sm">
+  <file name="alarm.cpp">
+   <text>/*
+ * Copyright (c) 2023 Victor Chavez
+ *
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ */
+
+#include &quot;alarm.hpp&quot;
+#include &quot;signals.hpp&quot;
+
+namespace sm {
+
+#include &lt;zephyr/kernel.h&gt;
+$define${demo::Alarm}
+
+} // namespace posix_demo</text>
+  </file>
+  <file name="alarm.hpp">
+   <text>/*
+ * Copyright (c) 2023 Victor Chavez
+ *
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ */
+#pragma once
+#include &lt;mock/alarm_driver.hpp&gt;
+#include &lt;qpcpp.hpp&gt;
+
+namespace sm {
+static uint32_t constexpr ALARM_TIME{120U};
+$declare${demo::Alarm}
+
+} // namespace posix_demo${sm::alarm.hpp}</text>
+  </file>
+  <file name="signals.hpp">
+   <text>/*
+ * Copyright (c) 2023 Victor Chavez
+ *
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ */
+
+#pragma once
+#include &lt;qpcpp.hpp&gt;
+
+enum sm_signals {
+    Timeout_SIG =  QP::Q_USER_SIG,
+    Reset_SIG,
+    MaxSignal = Reset_SIG
+};</text>
+  </file>
+ </directory>
+</model>
