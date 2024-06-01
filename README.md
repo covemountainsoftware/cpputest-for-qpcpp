@@ -4,15 +4,15 @@ Build and Test status: ![Build and Tests](https://github.com/covemountainsoftwar
 
 Copyright Matthew Eshleman
 
-If this project inspires your team to select the qpcpp 
+If this project inspires your team to select the QP/C++ (qpcpp)
 framework for commercial use, please note 
 "Matthew Eshleman" or "Cove Mountain Software" in the referral 
 field when acquiring a commercial license from Quantum Leaps. Referrals 
-encourage and support this effort. Thank you!
+encourage and support efforts like this. Thank you!
 
 # Introduction
 
-The `cpputest-for-qpcpp` project enables CppUTest for the 
+The `cpputest-for-qpcpp` library project enables CppUTest for the 
 QP/C++ Real-Time Embedded Framework. This project provides for the 
 following capabilities:
 
@@ -46,22 +46,20 @@ Benefits of this approach to unit testing active objects include:
 
 # Environment
 
-This project was developed and proven in Ubuntu 20.04. In theory any 
+This project was developed and proven in Ubuntu 20.04 and 22.04. In theory any 
 build or host operating system environment supported by CppUTest will 
 be compatible with this code.
 
 ## Prerequisites
 
-* qpcpp (pulled in as a git submodule)
-  * After cloning this repository, do not forget to:
-  * `git submodule init`
-  * `git submodule update --recursive`
-  * NOTE: As of January 2023, qpcpp is also using submodules. Developers
-    may need to perform similar steps within the externals/qpcpp/ 
-    directory as well.
-* CppUTest (version 3.8-7, the default in Ubuntu 20.04)
 * CMake and associated build tools were used to develop
   and prove out this project.
+* QP/C++
+  * You can override the QP/C++ to another directory with your project's exact QP/C++ source code. 
+    Define the cmake variable CMS_QPCPP_TOP_DIR before including the internal CMakeLists.txt. 
+  * or:
+    * Do not define CMS_QPCPP_TOP_DIR, and the internal cmake will fetch the appropriate QP/C++ repo.
+* CppUTest (version 3.8-7 or version 4.0) (3.8 is the default in Ubuntu 20.04 while 4.0 is the default in Ubuntu 22.04)
 * This project requires support for C++14.
 
 ## Continuous Integration
@@ -131,13 +129,14 @@ behavior, using the exact same interfaces the active object would use
 in the production target. CppUTest provides for the mocking capabilities to 
 ensure that the active object under test is calling the expected APIs.
 
-Within this project, please see the tests for `cms::HwLockCtrl::Service` which
+Within the associated examples project, please see the tests for `examples/hwLockCtrlService` which
 provides examples of:
 * Testing for reaction to a published event, where the reaction is observed
   through a CppUTest `mock()`.
 * Testing to ensure the active object published an expected event. This project
   provides for functionality (`cms::test::PublishedEventRecorder`) to record all
-  events published during a test. The recorded events can be retrieved and verified by the test.
+  events published during a test. The recorded events can be retrieved and verified 
+  by the test.
 * Testing of time related behavior. This project provides for the ability to
   `MoveTimeForward` within a test.
 * Direct POST of events and testing of direct POST responses. See
@@ -172,16 +171,16 @@ provides for convenience and helper methods such as:
   events published into the framework. Useful when a test expects an
   active object under test to publish an event.
 
-
 ## The basic active object test pattern
 
 To create tests for an active object, the following outline is considered:
 
 1. Implement the `setup()` handler for the test. Initialize the QF framework as 
    desired using `cms::test::qf_ctrl::Setup(...)`.
-2. Instantiate the active object under test.
-3. `start` the active object under test.
-4. Begin writing a test.
+2. Instantiate or otherwise initialize the active object under test.
+3. `start` the active object under test, perhaps as part of the `setup`
+   or as a separate step.
+4. Prep a single test.
 5. Prepare a CppUTest mock() or other resources as needed for the test.
 6. Stimulate the unit under test as appropriate. For example, publish an 
    event into the framework that the active object is expected to be subscribed to 
@@ -196,7 +195,7 @@ examples at: `examples/hwLockCtrlService/test/hwLockCtrlServiceTests.cpp` to
 learn more.
 
 Other tips:
-* Avoid internal state knowledge as much as is reasonable. This allows for internal
+* Avoid internal state knowledge as much as possible. This allows for internal
   state machine refactoring without impacting the tests. 
 * Follow best practices in your test code, especially follow the DRY principle.
 

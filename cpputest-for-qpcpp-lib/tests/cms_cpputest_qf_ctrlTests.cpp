@@ -139,3 +139,12 @@ TEST(qf_ctrlTests,
     CHECK_EQUAL(1, sigOneCount);
     CHECK_EQUAL(3, sigTwoCount);
 }
+
+TEST(qf_ctrlTests, qf_ctrl_provides_cpputest_for_qpcpp_lib_version)
+{
+    auto version = qf_ctrl::GetVersion();
+    CHECK_TRUE(version != nullptr);
+
+    std::string version_str(version);
+    CHECK_FALSE(version_str.empty());
+}

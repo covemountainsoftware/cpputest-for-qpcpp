@@ -95,6 +95,10 @@ void PublishAndProcess(enum_t sig,
 void PublishAndProcess(QP::QEvt const * e,
                        PublishedEventRecorder* recorder = nullptr);
 
+/// Get the internal library version string.
+/// Uses semantic versioning.
+const char * GetVersion();
+
 } //namespace qf_ctrl
 } //namespace test
 } //namespace cms

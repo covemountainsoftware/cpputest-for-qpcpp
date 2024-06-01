@@ -1,10 +1,13 @@
 The software supporting this CppUTest port of the 
-QP/C++ Real-Time Embedded Framework is licensed under a 
-dual-licensing model. Most of the files present in this
-repository are only needed for host PC based test execution.
-However, a few of the examples and files may find their way
-into a product's build. To request a commercial
-license see contact information below.
+QP/C++ Real-Time Embedded Framework (qpcpp) is licensed under a 
+dual-licensing model, with the default license being GPL. 
+
+Most of the files present in this repository are only needed for 
+host PC based test execution. However, a few of the examples 
+and files may find their way into a product's build. 
+
+To request a commercial license see contact information 
+below.
 
 Contact Information:
 ====================
