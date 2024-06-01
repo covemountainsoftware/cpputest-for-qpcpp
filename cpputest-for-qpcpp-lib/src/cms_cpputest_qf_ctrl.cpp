@@ -109,17 +109,19 @@ void Teardown()
     // Instead, we modified the QF port stop() method, which
     // internally will perform the memory check, as it has
     // friend access.
-    if (l_memPoolOption == MemPoolTeardownOption::CHECK_FOR_LEAKS) {
-        for (size_t i = 0; i < l_pubSubEventMemPoolConfigs->size(); ++i) {
-
-            const size_t poolNumOfEvents = l_pubSubEventMemPoolConfigs->at(i).config.numberOfEvents;
-
-            CHECK_TRUE_TEXT(poolNumOfEvents == QP::QF::ePool_[i].getNFree(),
-                            "A leak was detected in an internal QF event pool!");
-        }
-    }
-
     if (l_pubSubEventMemPoolConfigs != nullptr) {
+        if (l_memPoolOption == MemPoolTeardownOption::CHECK_FOR_LEAKS) {
+            for (size_t i = 0; i < l_pubSubEventMemPoolConfigs->size(); ++i) {
+
+                const size_t poolNumOfEvents =
+                  l_pubSubEventMemPoolConfigs->at(i).config.numberOfEvents;
+
+                CHECK_TRUE_TEXT(
+                  poolNumOfEvents == QP::QF::ePool_[i].getNFree(),
+                  "A leak was detected in an internal QF event pool!");
+            }
+        }
+
         delete l_pubSubEventMemPoolConfigs;
         l_pubSubEventMemPoolConfigs = nullptr;
     }
@@ -200,6 +202,11 @@ void CreatePoolConfigsFromArg(const MemPoolConfigs& pubSubEventMemPoolConfigs)
     for (const auto& config : pubSubEventMemPoolConfigs) {
         l_pubSubEventMemPoolConfigs->push_back(InternalPoolConfig(config));
     }
+}
+
+const char * GetVersion()
+{
+    return CPPUTEST_FOR_QPCPP_LIB_VERSION;
 }
 
 }   // namespace qf_ctrl
