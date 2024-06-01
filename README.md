@@ -244,6 +244,9 @@ and support this effort. Thank you!
 
 # References
 
+A top level example project using this library is maintained here:
+https://github.com/covemountainsoftware/cpputest-for-qpcpp-examples
+
 This project started from a non-qpcpp example, see this blog post:
 https://covemountainsoftware.com/2020/04/17/unit-testing-active-objects-and-state-machines/
 
