@@ -1,21 +1,25 @@
 cmake_minimum_required(VERSION 3.16)
-project(cpputest-for-qpcpp)
+project(cpputest-for-qpcpp-lib VERSION 1.0.1)
+include(FetchContent)
 
 set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_C_STANDARD 11)
 
 add_compile_options(-Wall -Wextra -Werror)
 
-include_directories(include)
-include_directories(utilities/include)
-include(externals/qpcppCMakeSupport.txt)
+set(CMS_EXTERNALS_TOP_DIR ${CMAKE_CURRENT_SOURCE_DIR}/externals)
+set(CMS_CMAKE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/cpputest-for-qpcpp-lib/cmake CACHE INTERNAL "")
 
-set(TEST_SUPPORT_TOP_DIR ${CMAKE_CURRENT_SOURCE_DIR}/test_support)
-set(MOCKS_TOP_DIR ${TEST_SUPPORT_TOP_DIR}/mocks)
-set(SERVICES_TOP_DIR ${CMAKE_CURRENT_SOURCE_DIR}/services)
-set(EXTERNALS_TOP_DIR ${CMAKE_CURRENT_SOURCE_DIR}/externals)
-set(DRIVERS_TOP_DIR ${CMAKE_CURRENT_SOURCE_DIR}/drivers)
+if(NOT DEFINED CMS_QPCPP_TOP_DIR)
+    set(CMS_QPCPP_TOP_DIR ${CMS_EXTERNALS_TOP_DIR}/qpcpp)
+    FetchContent_Declare(qpcpp
+            GIT_REPOSITORY https://github.com/QuantumLeaps/qpcpp.git
+            GIT_TAG        6b7d766521a5c9681f61922a64027690721c2478 #7.2.1
+            SOURCE_DIR     ${CMS_QPCPP_TOP_DIR}
+    )
+    message("Fetching QP/C++ git repository")
+    FetchContent_MakeAvailable(qpcpp)
+endif(NOT DEFINED CMS_QPCPP_TOP_DIR)
 
-add_subdirectory(utilities)
-add_subdirectory(test_support)
-add_subdirectory(drivers)
-add_subdirectory(examples)
+include(${CMS_CMAKE_DIR}/qpcppCMakeSupport.cmake)
+add_subdirectory(cpputest-for-qpcpp-lib)
