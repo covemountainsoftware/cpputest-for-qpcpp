@@ -174,7 +174,7 @@ TEST(
 
 TEST(OrthogonalComponentTests, component_will_process_desired_published_signal)
 {
-    static const QP::QEvt event = {TEST1_PUBLISH_SIG, 0, 0};
+    static const QP::QEvt event = QP::QEvt(TEST1_PUBLISH_SIG);
 
     createUnitUnderTest();
     startUnitUnderTest();
@@ -187,7 +187,7 @@ TEST(OrthogonalComponentTests, component_will_process_desired_published_signal)
 TEST(OrthogonalComponentTests,
      component_will_not_process_undesired_published_signal)
 {
-    static const QP::QEvt event = {TEST2_PUBLISH_SIG, 0, 0};
+    static const QP::QEvt event = QP::QEvt(TEST2_PUBLISH_SIG);
 
     createUnitUnderTest();
     startUnitUnderTest();
@@ -200,7 +200,7 @@ TEST(OrthogonalComponentTests,
 TEST(OrthogonalComponentTests,
      component_will_process_desired_direct_post_signal)
 {
-    static const QP::QEvt event = {TEST3_POST_SIG, 0, 0};
+    static const QP::QEvt event = QP::QEvt(TEST3_POST_SIG);
 
     createUnitUnderTest();
     startUnitUnderTest();
@@ -212,7 +212,7 @@ TEST(OrthogonalComponentTests,
 
 TEST(OrthogonalComponentTests, component_will_not_process_undesired_misc_signal)
 {
-    static const QP::QEvt event = {TEST4_MISC_SIG, 0, 0};
+    static const QP::QEvt event = QP::QEvt(TEST4_MISC_SIG);
 
     createUnitUnderTest();
     startUnitUnderTest();

@@ -14,7 +14,7 @@ if(NOT DEFINED CMS_QPCPP_TOP_DIR)
     set(CMS_QPCPP_TOP_DIR ${CMS_EXTERNALS_TOP_DIR}/qpcpp)
     FetchContent_Declare(qpcpp
             GIT_REPOSITORY https://github.com/QuantumLeaps/qpcpp.git
-            GIT_TAG        6b7d766521a5c9681f61922a64027690721c2478 #7.2.1
+            GIT_TAG        10441f7a03fa956b9e4772a073a05a96487983e2 #7.3.4
             SOURCE_DIR     ${CMS_QPCPP_TOP_DIR}
     )
     message("Fetching QP/C++ git repository")

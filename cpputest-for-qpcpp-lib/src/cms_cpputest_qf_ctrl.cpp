@@ -27,10 +27,9 @@
 #include "qpcpp.hpp"
 #include <algorithm>
 #include <cassert>
-#include <cstdint>
 #include <vector>
 #include "CppUTest/TestHarness.h"
-#include "qf_pkg.hpp"
+#include "qp_pkg.hpp"
 
 namespace cms {
 namespace test {
@@ -71,7 +70,7 @@ void Setup(enum_t const maxPubSubSignalValue, uint32_t ticksPerSecond,
     l_ticksPerSecond    = ticksPerSecond;
     l_subscriberStorage = new SubscriberList();
     l_subscriberStorage->resize(maxPubSubSignalValue);
-    QSubscrList nullValue = {0};
+    QSubscrList nullValue = QSubscrList();
     std::fill(l_subscriberStorage->begin(), l_subscriberStorage->end(),
               nullValue);
 
@@ -102,13 +101,10 @@ void Teardown()
 
     QF::stop();
 
+    bool leakDetected = false;
+
     // No test should complete with allocated events sitting
-    // in a memory pool. However, the QP Pool class
-    // is rather private. Ideally that
-    // QP class is modified to include size/usage accessors.
-    // Instead, we modified the QF port stop() method, which
-    // internally will perform the memory check, as it has
-    // friend access.
+    // in a memory pool.
     if (l_pubSubEventMemPoolConfigs != nullptr) {
         if (l_memPoolOption == MemPoolTeardownOption::CHECK_FOR_LEAKS) {
             for (size_t i = 0; i < l_pubSubEventMemPoolConfigs->size(); ++i) {
@@ -116,20 +112,24 @@ void Teardown()
                 const size_t poolNumOfEvents =
                   l_pubSubEventMemPoolConfigs->at(i).config.numberOfEvents;
 
-                CHECK_TRUE_TEXT(
-                  poolNumOfEvents == QP::QF::ePool_[i].getNFree(),
-                  "A leak was detected in an internal QF event pool!");
+                if (poolNumOfEvents != QP::QF::priv_.ePool_[i].getNFree())
+                {
+                    leakDetected = true;
+                    fprintf(stderr, "Memory leak in pool: %zu\n", i);
+                }
             }
         }
 
         delete l_pubSubEventMemPoolConfigs;
         l_pubSubEventMemPoolConfigs = nullptr;
+
+        CHECK_TRUE_TEXT(!leakDetected, "A leak was detected in an internal QF event pool!");
     }
 }
 
 void ProcessEvents()
 {
-    QP::QF_runUntilNoReadyActiveObjects();
+    QP::RunUntilNoReadyActiveObjects();
 }
 
 void MoveTimeForward(const std::chrono::milliseconds& duration)
@@ -148,7 +148,7 @@ void MoveTimeForward(const std::chrono::milliseconds& duration)
       ONCE, static_cast<LoopCounter_t>(duration.count() / millisecondsPerTick));
 
     for (LoopCounter_t i = 0; i < ticks; ++i) {
-        QP::QTimeEvt::tick_(0, nullptr);
+        QP::QTimeEvt::tick(0, nullptr);
         ProcessEvents();
     }
 }
@@ -187,13 +187,16 @@ void PublishAndProcess(QP::QEvt const* const e,
 
 void CreateDefaultPools()
 {
+    //see QP/C++ 7.3.0 release notes, where memory pool behavior/sizing
+    //was changed: https://www.state-machine.com/qpcpp/history.html#qpcpp_7_3_0
+
     l_pubSubEventMemPoolConfigs = new std::vector<InternalPoolConfig>();
     l_pubSubEventMemPoolConfigs->push_back(
-      InternalPoolConfig(MemPoolConfig {sizeof(uint64_t), 25}));
+      InternalPoolConfig(MemPoolConfig {sizeof(uint64_t) * 2, 25}));
     l_pubSubEventMemPoolConfigs->push_back(
-      InternalPoolConfig(MemPoolConfig {sizeof(uint64_t) * 5, 10}));
+      InternalPoolConfig(MemPoolConfig {sizeof(uint64_t) * 10, 10}));
     l_pubSubEventMemPoolConfigs->push_back(
-      InternalPoolConfig(MemPoolConfig {sizeof(uint64_t) * 15, 5}));
+      InternalPoolConfig(MemPoolConfig {sizeof(uint64_t) * 20, 5}));
 }
 
 void CreatePoolConfigsFromArg(const MemPoolConfigs& pubSubEventMemPoolConfigs)

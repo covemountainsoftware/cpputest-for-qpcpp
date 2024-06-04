@@ -55,6 +55,8 @@ public:
     {
     }
 
+    virtual ~OrthogonalContainer() = default;
+
 protected:
     // The 'ForEachInTuple' support inspired by:
     // https://stackoverflow.com/questions/26902633/how-to-iterate-over-a-stdtuple-in-c-11

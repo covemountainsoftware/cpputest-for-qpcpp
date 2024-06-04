@@ -25,7 +25,7 @@
 #include "cms_cpputest_qf_ctrl.hpp"
 #include "qpcpp.hpp"
 #include "CppUTest/TestHarness.h"
-#include "qf_pkg.hpp"
+#include "qp_pkg.hpp"
 
 using namespace cms::test;
 
@@ -42,14 +42,14 @@ TEST_GROUP(qf_ctrlTests)
 
     void ConfirmNumberOfPools(uint32_t poolCount)
     {
-        CHECK_EQUAL(poolCount, QP::QF::maxPool_);
+        CHECK_EQUAL(poolCount, QP::QF::priv_.maxPool_);
     }
 
     void ConfirmPoolEventSize(uint32_t poolIndex, uint32_t blockSize)
     {
         CHECK_TRUE(poolIndex < QF_MAX_EPOOL);
-        CHECK_TRUE(poolIndex < QP::QF::maxPool_);
-        CHECK_EQUAL(blockSize, QP::QF::ePool_[poolIndex].getBlockSize());
+        CHECK_TRUE(poolIndex < QP::QF::priv_.maxPool_);
+        CHECK_EQUAL(blockSize, QP::QF::priv_.ePool_[poolIndex].getBlockSize());
     }
 };
 
@@ -58,21 +58,21 @@ TEST(qf_ctrlTests, by_default_setup_creates_three_pubsub_pools)
 {
     qf_ctrl::Setup(10, 1000);
     ConfirmNumberOfPools(3);
-    ConfirmPoolEventSize(0, 8);
-    ConfirmPoolEventSize(1, 40);
-    ConfirmPoolEventSize(2, 120);
+    ConfirmPoolEventSize(0, 16);
+    ConfirmPoolEventSize(1, 80);
+    ConfirmPoolEventSize(2, 160);
 }
 
 TEST(qf_ctrlTests, setup_will_create_two_pools_when_requested)
 {
     qf_ctrl::MemPoolConfigs configs;
-    configs.push_back(qf_ctrl::MemPoolConfig {sizeof(uint64_t), 10});
-    configs.push_back(qf_ctrl::MemPoolConfig {sizeof(uint64_t) * 2, 5});
+    configs.push_back(qf_ctrl::MemPoolConfig {sizeof(uint64_t) * 4, 10});
+    configs.push_back(qf_ctrl::MemPoolConfig {sizeof(uint64_t) * 8, 5});
 
     qf_ctrl::Setup(10, 1000, configs);
     ConfirmNumberOfPools(2);
-    ConfirmPoolEventSize(0, sizeof(uint64_t));
-    ConfirmPoolEventSize(1, sizeof(uint64_t) * 2);
+    ConfirmPoolEventSize(0, sizeof(uint64_t) * 4);
+    ConfirmPoolEventSize(1, sizeof(uint64_t) * 8);
 }
 
 TEST(qf_ctrlTests, setup_will_create_one_pool_when_requested)

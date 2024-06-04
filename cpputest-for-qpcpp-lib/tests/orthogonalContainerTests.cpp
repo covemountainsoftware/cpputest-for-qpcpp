@@ -300,9 +300,8 @@ TEST(
   OrthogonalContainerTests,
   container_with_two_components_allows_for_posts_for_components_and_expected_components_process_expected_signals)
 {
-
-    static const QP::QEvt Test3Event = {TEST1_POST_SIG, 0, 0};
-    static const QP::QEvt Test4Event = {TEST2_POST_SIG, 0, 0};
+    static const QP::QEvt Test3Event = QP::QEvt(TEST1_POST_SIG);
+    static const QP::QEvt Test4Event = QP::QEvt(TEST2_POST_SIG);
 
     auto underTest = CreateAndStartWithTwoTestComponents();
 

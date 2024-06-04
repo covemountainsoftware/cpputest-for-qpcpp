@@ -82,7 +82,7 @@ TEST(BackedQueueTests, can_push_up_to_max_events)
     auto underTest      = std::unique_ptr<ArrayTestType>(new ArrayTestType());
 
     // fill up the queue
-    static QP::QEvt testEvent {5, 0, 0};
+    static const QP::QEvt testEvent = QP::QEvt(5);
     for (size_t i = 0; i < underTest->capacity(); ++i) {
         underTest->post(&testEvent, QP::QF::NO_MARGIN, 0);
     }

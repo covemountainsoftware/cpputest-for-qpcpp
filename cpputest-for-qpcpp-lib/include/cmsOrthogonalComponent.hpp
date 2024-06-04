@@ -44,6 +44,7 @@ public:
         m_container(container), m_qs_id(qs_id)
     {
     }
+    virtual ~OrthogonalComponent() = default;
 
     OrthogonalComponent(const OrthogonalComponent&)             = delete;
     OrthogonalComponent& operator=(const OrthogonalComponent&)  = delete;

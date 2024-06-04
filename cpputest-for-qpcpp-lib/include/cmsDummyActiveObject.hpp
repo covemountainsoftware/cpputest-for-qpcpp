@@ -48,6 +48,8 @@ public:
         m_incomingEvents.fill(nullptr);
     }
 
+    virtual ~DummyActiveObject() = default;
+
     DummyActiveObject(const DummyActiveObject&)            = delete;
     DummyActiveObject& operator=(const DummyActiveObject&) = delete;
     DummyActiveObject(DummyActiveObject&&)                 = delete;

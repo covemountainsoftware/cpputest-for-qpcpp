@@ -7,9 +7,9 @@
 ///
 
 #define QP_IMPL             // this is QP implementation
-#include "qf_port.hpp"      // QF port
-#include "qf_pkg.hpp"       // QF package-scope interface
-#include "qassert.h"        // QP embedded systems-friendly assertions
+#include "qp_port.hpp"      // QF port
+#include "qp_pkg.hpp"       // QF package-scope interface
+#include "qsafe.h"        // QP embedded systems-friendly assertions
 #ifdef Q_SPY                // QS software tracing enabled?
     #error "Q_SPY not supported in the cpputest port"
 #else
@@ -26,9 +26,9 @@ QPSet cpputest_readySet_;   // ready set of active objects
 //****************************************************************************
 void QF::init()
 {
-    QF::maxPool_ = static_cast<uint_fast8_t>(0);
-    bzero(&QP::QTimeEvt::timeEvtHead_[0], sizeof(QP::QTimeEvt::timeEvtHead_));
-    bzero(&QP::QActive::registry_[0], sizeof(QP::QActive::registry_));
+    priv_.maxPool_ = static_cast<uint_fast8_t>(0);
+    QP::QF::bzero_(&QP::QTimeEvt::timeEvtHead_[0], sizeof(QP::QTimeEvt::timeEvtHead_));
+    QP::QF::bzero_(&QP::QActive::registry_[0], sizeof(QP::QActive::registry_));
 }
 
 #if PURPOSEFULLY_NOT_IMPLEMENTED_
@@ -39,7 +39,7 @@ int_t QF::run()
 }
 #endif
 
-void QF_runUntilNoReadyActiveObjects()
+void RunUntilNoReadyActiveObjects()
 {
     while (cpputest_readySet_.notEmpty()) {
         std::uint_fast8_t p = cpputest_readySet_.findMax();
@@ -49,13 +49,13 @@ void QF_runUntilNoReadyActiveObjects()
         // (e.g., it must not be stopped)
         Q_ASSERT_ID(320, a != nullptr);
 
-        while (!a->m_eQueue.isEmpty()) {
-            const auto e = a->m_eQueue.get(0);
+        while (!a->getEQueue().isEmpty()) {
+            const auto e = a->get_();
             a->dispatch(e, 0);
             QF::gc(e);
         }
 
-        if (a->m_eQueue.isEmpty()) { /* empty queue? */
+        if (a->getEQueue().isEmpty()) { /* empty queue? */
             cpputest_readySet_.remove(p);
         }
     }
@@ -88,7 +88,7 @@ void QActive::start( QPrioSpec const prioSpec,
 }
 
 //............................................................................
-#ifdef QF_ACTIVE_STOP
+#ifdef QACTIVE_CAN_STOP
 void QActive::stop()
 {
     unsubscribeAll();
