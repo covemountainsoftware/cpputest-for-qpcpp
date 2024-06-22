@@ -9,6 +9,14 @@ else()
     message(STATUS "Found CppUTest version ${CPPUTEST_VERSION}")
 endif()
 
+if(CPPUTEST_VERSION_MAJOR LESS 4)
+    # likely 3.8
+    add_compile_definitions(CMS_CPPUTEST_LEGACY)
+else()
+    # 4.0 version or newer
+    add_compile_definitions(CMS_CPPUTEST_V4)
+endif()
+
 include_directories(${CPPUTEST_INCLUDE_DIRS})
 link_directories(${CPPUTEST_LIBRARIES})
 

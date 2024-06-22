@@ -127,6 +127,11 @@ void Teardown()
     }
 }
 
+void ChangeMemPoolTeardownOption(MemPoolTeardownOption memPoolOpt)
+{
+    l_memPoolOption = memPoolOpt;
+}
+
 void ProcessEvents()
 {
     QP::RunUntilNoReadyActiveObjects();

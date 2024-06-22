@@ -98,6 +98,24 @@ TEST(qf_ctrlTests, setup_provides_option_to_skip_memory_pool_leak_detection)
     // teardown.
 }
 
+TEST(qf_ctrlTests, provides_modify_memory_pool_leak_detection)
+{
+    //Do a setup with leak detection.
+    qf_ctrl::Setup(10, 1000, qf_ctrl::MemPoolConfigs {},
+                   qf_ctrl::MemPoolTeardownOption::CHECK_FOR_LEAKS);
+
+    //but, this test only wants to disable leak detection, likely because of ASSERT
+    //testing which may interrupt normal event processing, resulting in false leaks.
+    qf_ctrl::ChangeMemPoolTeardownOption(qf_ctrl::MemPoolTeardownOption::IGNORE);
+
+    // purposeful leak of an allocated QEvt
+    QP::QEvt* volatile e = Q_NEW(QP::QEvt, 5);
+    (void)e;
+
+    // test should pass, as we disabled the memory pool leak detection during
+    // teardown.
+}
+
 TEST(qf_ctrlTests,
      qf_ctrl_provides_for_ability_to_move_time_forward_firing_active_object_timers_as_expected)
 {

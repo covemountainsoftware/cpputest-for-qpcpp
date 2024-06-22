@@ -1,4 +1,4 @@
-/// @brief Support methods to help with unit test mocks for QASSERT.
+/// @brief Support methods to help with unit testing for QASSERT.
 /// @ingroup
 /// @cond
 ///***************************************************************************
@@ -21,8 +21,8 @@
 ///***************************************************************************
 /// @endcond
 
-#ifndef CPPUTEST_FOR_QPCPP_QASSERTMOCKSUPPORT_HPP
-#define CPPUTEST_FOR_QPCPP_QASSERTMOCKSUPPORT_HPP
+#ifndef QASSERT_MOCK_SUPPORT_HPP
+#define QASSERT_MOCK_SUPPORT_HPP
 
 #include "CppUTestExt/MockSupport.h"
 #include "qsafe.h"
@@ -31,7 +31,7 @@ namespace cms {
 namespace test {
 
 static constexpr const char* QASSERT_MOCK_NAME  = "QASSERT";
-static constexpr const char* ONERROR_FUNC_NAME = "Q_onError";
+static constexpr const char* ONERROR_FUNC_NAME  = "Q_onError";
 
 inline void MockExpectQAssert()
 {
@@ -51,4 +51,4 @@ inline void MockExpectQAssert(const char* module, int id)
 }   // namespace test
 }   // namespace cms
 
-#endif   // CPPUTEST_FOR_QPCPP_QASSERTMOCKSUPPORT_HPP
+#endif   // QASSERT_MOCK_SUPPORT_HPP

@@ -5,6 +5,7 @@ set(TEST_SOURCES
         qassertTests.cpp
         cms_cpputest_qf_ctrlTests.cpp
         cms_cpputest_qf_ctrlPublishTests.cpp
+        cms_cpputest_qf_ctrl_post_tests.cpp
         publishedEventRecorderTests.cpp
         backedQueueTests.cpp
         orthogonalComponentTests.cpp

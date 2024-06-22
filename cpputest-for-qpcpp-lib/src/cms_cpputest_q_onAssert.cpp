@@ -26,7 +26,7 @@
 ///***************************************************************************
 /// @endcond
 
-#include "CppUTest/TestHarness.h"
+#include "cms_cpputest.hpp"
 #include "qp_port.hpp"
 #include "qsafe.h"
 #include "qassertMockSupport.hpp"
@@ -51,5 +51,5 @@ void Q_onError(char const* const module, int_t const id)
       .withParameter("module", module)
       .withParameter("id", id);
 
-    TEST_EXIT;
+      CMS_TEST_EXIT;
 }

@@ -1,5 +1,5 @@
-/// @brief Supporting methods for setup, teardown, of a fake cpputest
-///        compatible port of the qpcpp QF framework.
+/// @brief Supporting methods for setup, teardown, and control of a fake
+///        cpputest compatible port of the QP/C++ (qpcpp) framework.
 /// @ingroup
 /// @cond
 ///***************************************************************************
@@ -22,8 +22,8 @@
 ///***************************************************************************
 /// @endcond
 
-#ifndef CPPUTEST_FOR_QPCPP_CMS_CPPUTEST_QF_CTRL_HPP
-#define CPPUTEST_FOR_QPCPP_CMS_CPPUTEST_QF_CTRL_HPP
+#ifndef CMS_CPPUTEST_QF_CTRL_HPP
+#define CMS_CPPUTEST_QF_CTRL_HPP
 
 #include <chrono>
 #include "qpcpp.hpp"
@@ -62,6 +62,8 @@ void Setup(enum_t maxPubSubSignalValue, uint32_t ticksPerSecond,
            const MemPoolConfigs& pubSubEventMemPoolConfigs = {},
            MemPoolTeardownOption memPoolOpt = MemPoolTeardownOption::CHECK_FOR_LEAKS);
 
+void ChangeMemPoolTeardownOption(MemPoolTeardownOption memPoolOpt);
+
 /// Teardown the QP/QF subsystem after completing a unit test.
 void Teardown();
 
@@ -95,6 +97,27 @@ void PublishAndProcess(enum_t sig,
 void PublishAndProcess(QP::QEvt const * e,
                        PublishedEventRecorder* recorder = nullptr);
 
+/// Helper method to Post an event to an active object
+/// followed internally by ProcessEvents().
+/// \param e
+/// \param dest
+inline void PostAndProcess(QP::QEvt const * e, QP::QActive* dest)
+{
+    dest->POST(e, nullptr);
+    ProcessEvents();
+}
+
+/// Helper method to Post a static const QEvt to an active object
+/// followed internally by ProcessEvents().
+/// \param sig (template param):  the signal value of the const event to post
+/// \param dest : the active object to post to.
+template <enum_t sig>
+inline void PostAndProcess(QP::QActive* dest)
+{
+    static const QP::QEvt constEvent = QP::QEvt(sig);
+    PostAndProcess(&constEvent, dest);
+}
+
 /// Get the internal library version string.
 /// Uses semantic versioning.
 const char * GetVersion();
@@ -103,4 +126,4 @@ const char * GetVersion();
 } //namespace test
 } //namespace cms
 
-#endif //CPPUTEST_FOR_QPCPP_CMS_CPPUTEST_QF_CTRL_HPP
+#endif //CMS_CPPUTEST_QF_CTRL_HPP
