@@ -44,6 +44,12 @@ Benefits of this approach to unit testing active objects include:
   system. Run all the tests with every commit. No surprises when 
   it is time to generate a target release.
 
+# Tutorial Video
+
+A tutorial video on each of the features of this library is now available. This
+particular video is on the QP/C version, however the lessons apply to this 
+version too: See https://youtu.be/hr1qkNH1wSA.
+
 # Environment
 
 This project was developed and proven in Ubuntu 20.04 and 22.04. In theory any 
