@@ -29,11 +29,35 @@
 #include "cms_cpputest.hpp"
 #include "qp_port.hpp"
 #include "qsafe.h"
-#include "qassertMockSupport.hpp"
+#include "cmsQAssertMockSupport.hpp"
+#include "qassert-meta.h"
+
+static bool m_printAssertMeta = true;
+
+void cms::test::QAssertMetaOutputEnable()
+{
+    m_printAssertMeta = true;
+}
+
+void cms::test::QAssertMetaOutputDisable()
+{
+    m_printAssertMeta = false;
+}
 
 void Q_onError(char const* const module, int_t const id)
 {
-    //fprintf(stderr, "%s(%s , %d)\n", __FUNCTION__ , module, id);
+    if (m_printAssertMeta)
+    {
+        fprintf(stdout, "\n%s(%s:%d)\n", __FUNCTION__ , module, id);
+        QAssertMetaDescription meta;
+        bool found = QAssertMetaGetDescription(module, id, &meta);
+        if (found)
+        {
+            fprintf(stdout, "Additional details on (%s:%d):  %s\n", module, id, meta.brief);
+            fprintf(stdout, "Tips/More:\n%s\n", meta.tips);
+            fprintf(stdout, "URL:  %s\n", meta.url);
+        }
+    }
 
     // The TEST_EXIT macro used below is throwing an exception.
     // However, many of QP/QF methods are marked as 'noexcept'

@@ -9,6 +9,7 @@ add_compile_options(-Wall -Wextra -Werror)
 
 set(CMS_EXTERNALS_TOP_DIR ${CMAKE_CURRENT_SOURCE_DIR}/externals)
 set(CMS_CMAKE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/cpputest-for-qpcpp-lib/cmake CACHE INTERNAL "")
+set(CMS_QASSERT_META_TOP_DIR ${CMS_EXTERNALS_TOP_DIR}/qassert-meta)
 
 if(NOT DEFINED CMS_QPCPP_TOP_DIR)
     set(CMS_QPCPP_TOP_DIR ${CMS_EXTERNALS_TOP_DIR}/qpcpp)
@@ -20,6 +21,17 @@ if(NOT DEFINED CMS_QPCPP_TOP_DIR)
     message("Fetching QP/C++ git repository")
     FetchContent_MakeAvailable(qpcpp)
 endif(NOT DEFINED CMS_QPCPP_TOP_DIR)
+
+# enable the option to build qassert-meta-lib for QP/C++
+option(CMS_ENABLE_QASSERT_META_QPCPP "Setup Internal QAssert Meta Data for QP/C++" ON)
+
+FetchContent_Declare(qassert-meta
+        GIT_REPOSITORY https://github.com/covemountainsoftware/qassert-meta.git
+        GIT_TAG        ac2e18170208b78c797d8d2fc5374a9b2bf981ce
+        SOURCE_DIR     ${CMS_QASSERT_META_TOP_DIR}
+)
+message("Fetching qassert-meta git repository")
+FetchContent_MakeAvailable(qassert-meta)
 
 include(${CMS_CMAKE_DIR}/qpcppCMakeSupport.cmake)
 add_subdirectory(cpputest-for-qpcpp-lib)

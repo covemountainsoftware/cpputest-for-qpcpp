@@ -129,8 +129,8 @@ TEST(qf_ctrlTests,
 
     // a 'dummy' active object is needed to verify
     // that QF timers are actually firing.
-    auto dummy = std::unique_ptr<cms::DefaultDummyActiveObject>(
-      new cms::DefaultDummyActiveObject());
+    auto dummy = std::unique_ptr<cms::test::DefaultDummyActiveObject>(
+      new cms::test::DefaultDummyActiveObject());
     dummy->dummyStart();
     dummy->SetPostedEventHandler([&](QP::QEvt const* e) {
         if (e->sig == SIG_1) {

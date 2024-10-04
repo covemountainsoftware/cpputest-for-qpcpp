@@ -6,6 +6,7 @@ set(TEST_SOURCES
         cms_cpputest_qf_ctrlTests.cpp
         cms_cpputest_qf_ctrlPublishTests.cpp
         cms_cpputest_qf_ctrl_post_tests.cpp
+        cms_dummy_active_object_tests.cpp
         publishedEventRecorderTests.cpp
         backedQueueTests.cpp
         orthogonalComponentTests.cpp

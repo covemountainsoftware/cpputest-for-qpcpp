@@ -36,9 +36,17 @@ class PublishedEventRecorder;
 
 namespace qf_ctrl {
 
-static constexpr uint8_t UNIT_UNDER_TEST_PRIORITY = QF_MAX_ACTIVE;
-static constexpr uint8_t RECORDER_PRIORITY        = 1;
-
+enum : uint8_t {
+    RECORDER_PRIORITY = 1,
+    DUMMY_AO_A_PRIORITY,
+    DUMMY_AO_B_PRIORITY,
+    DUMMY_AO_C_PRIORITY,
+    DUMMY_AO_D_PRIORITY,
+    DUMMY_AO_E_PRIORITY,
+    UNIT_UNDER_TEST_PRIORITY
+};
+static_assert(UNIT_UNDER_TEST_PRIORITY < QF_MAX_ACTIVE,
+              "too many priorities defined");
 enum class MemPoolTeardownOption { CHECK_FOR_LEAKS, IGNORE };
 
 struct MemPoolConfig {
