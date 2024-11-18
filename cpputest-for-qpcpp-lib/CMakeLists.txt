@@ -2,6 +2,8 @@ include_directories(include)
 include_directories(${CMS_QPCPP_SRC_DIR})
 include_directories(${CMS_CPPUTEST_QP_PORT_TOP_DIR}/include)
 
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
 add_definitions(-DCPPUTEST_FOR_QPCPP_LIB_VERSION=\"${cpputest-for-qpcpp-lib_VERSION}\")
 
 add_library(cpputest-for-qpcpp-lib
