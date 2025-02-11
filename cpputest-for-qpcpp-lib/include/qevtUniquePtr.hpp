@@ -68,9 +68,9 @@ public:
 
     explicit operator bool() const { return m_evt != nullptr; }
 
-    bool operator==(void* ptr) const { return ptr == m_evt; }
+    bool operator==(void const * ptr) const { return ptr == m_evt; }
 
-    bool operator!=(void* ptr) const { return ptr != m_evt; }
+    bool operator!=(void const * ptr) const { return ptr != m_evt; }
 
     const EvtT* get() noexcept { return m_evt; }
 
