@@ -28,6 +28,19 @@
 
 using namespace cms::test;
 
+namespace {
+
+struct TestEvent : QP::QEvt
+{
+    explicit constexpr TestEvent(QP::QSignal const s, int value) noexcept
+        : QP::QEvt(s),
+        testValue(value)
+    {}
+    int testValue;
+};
+
+}
+
 TEST_GROUP(PublishedEventRecorderTests) {
     static constexpr enum_t TEST1_PUBLISH_SIG = QP::Q_USER_SIG + 1;
     static constexpr enum_t TEST2_PUBLISH_SIG = TEST1_PUBLISH_SIG + 1;
@@ -111,4 +124,15 @@ TEST(PublishedEventRecorderTests,
 {
     auto event = mUnderTest->getRecordedEvent<QP::QEvt>();
     CHECK_TRUE(event == nullptr);
+}
+
+TEST(PublishedEventRecorderTests, can_record_custom_event)
+{
+    static const TestEvent testEvent(TEST1_PUBLISH_SIG, 5);
+    qf_ctrl::PublishAndProcess(&testEvent);
+    CHECK_TRUE(mUnderTest->isAnyEventRecorded());
+    auto event = mUnderTest->getRecordedEvent<TestEvent>();
+    CHECK_TRUE(event != nullptr);
+    CHECK_EQUAL(TEST1_PUBLISH_SIG, event->sig);
+    CHECK_EQUAL(5, event->testValue);
 }
