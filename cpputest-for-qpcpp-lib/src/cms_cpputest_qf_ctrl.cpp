@@ -101,11 +101,11 @@ void Teardown()
 
     QF::stop();
 
-    bool leakDetected = false;
-
     // No test should complete with allocated events sitting
     // in a memory pool.
     if (l_pubSubEventMemPoolConfigs != nullptr) {
+        bool leakDetected = false;
+
         if (l_memPoolOption == MemPoolTeardownOption::CHECK_FOR_LEAKS) {
             for (size_t i = 0; i < l_pubSubEventMemPoolConfigs->size(); ++i) {
 
