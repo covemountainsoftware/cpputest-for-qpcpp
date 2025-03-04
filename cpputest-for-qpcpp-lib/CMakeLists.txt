@@ -28,9 +28,13 @@ add_library(cpputest-for-qpcpp-lib
         src/cms_cpputest_qf_onCleanup.cpp
         src/cpputestMain.cpp
         ${CMS_QPCPP_QF_SRCS})
+
 target_link_libraries(cpputest-for-qpcpp-lib qassert-meta-lib)
-add_subdirectory(tests)
+
+target_compile_options(cpputest-for-qpcpp-lib PRIVATE -Wall -Wextra -Werror -Wpedantic -Wold-style-cast -Wsign-conversion)
 
 target_include_directories(cpputest-for-qpcpp-lib PUBLIC
         ${CMS_QPCPP_INCLUDE_DIR}
         include)
+
+add_subdirectory(tests)
