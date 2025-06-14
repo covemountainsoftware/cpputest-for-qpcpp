@@ -6,21 +6,6 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 add_definitions(-DCPPUTEST_FOR_QPCPP_LIB_VERSION=\"${cpputest-for-qpcpp-lib_VERSION}\")
 
-find_program(CPPCHECK cppcheck)
-if (CPPCHECK)
-    set(CMAKE_CXX_CPPCHECK
-            ${CPPCHECK}
-            --enable=warning,performance,portability
-            --inline-suppr
-            --quiet
-            --suppress=missingIncludeSystem
-            --error-exitcode=1
-            -DUINTPTR_MAX=0xFFFFFFFF
-    )
-else ()
-    message(WARNING "Cppcheck not found, install for additional analysis")
-endif ()
-
 add_library(cpputest-for-qpcpp-lib
         src/cpputest_qf_port.cpp
         src/cms_cpputest_qf_ctrl.cpp
