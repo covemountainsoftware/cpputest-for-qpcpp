@@ -97,11 +97,11 @@ public:
               nullptr, 0);
     }
 
-    bool isRecorderEmpty() { return m_recordedEvents.isEmpty(); }
+    bool isRecorderEmpty() const { return m_recordedEvents.isEmpty(); }
 
-    bool isAnyEventRecorded() { return !m_recordedEvents.isEmpty(); }
+    virtual bool isAnyEventRecorded() const { return !m_recordedEvents.isEmpty(); }
 
-    bool isSignalRecorded(enum_t sig)
+    virtual bool isSignalRecorded(enum_t sig)
     {
         if (!isAnyEventRecorded()) {
             return false;
@@ -123,7 +123,7 @@ public:
     }
 
 protected:
-    void RecorderEventHandler(QP::QEvt const * e)
+    virtual void RecorderEventHandler(QP::QEvt const * e)
     {
         if (e->sig >= QP::Q_USER_SIG) {
             // record the event

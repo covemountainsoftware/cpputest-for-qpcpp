@@ -29,7 +29,6 @@
 #include "cmsVectorBackedQEQueue.hpp"
 #include "qevtUniquePtr.hpp"
 #include "qpcpp.hpp"
-#include <vector>
 
 namespace cms {
 namespace test {
@@ -60,7 +59,7 @@ public:
 
     /// Upon construction and init/start, this active object will
     /// subscribe and record all events in the signal range:
-    ///         [startingValue .. endValue)
+    ///         [startingValue ... endValue)
     /// \param startingValue - starting sig value the recorder will record
     /// \param endValue - final value in sig range to record. This value is
     ///                   NOT recorded, rather "endValue - 1" is recorded.
@@ -69,9 +68,9 @@ public:
     ///                              recorder may store.
     explicit PublishedEventRecorder(enum_t startingValue, enum_t endValue,
                                     size_t maxRecordedEventCount = 100) :
-        DummyActiveObject(),
-        m_startingValue(startingValue), m_endValue(endValue),
-        m_recordedEvents(maxRecordedEventCount), m_oneShotIgnoreSig(0)
+        DummyActiveObject(), m_startingValue(startingValue),
+        m_endValue(endValue), m_recordedEvents(maxRecordedEventCount),
+        m_oneShotIgnoreSig(0)
     {
     }
 
@@ -91,9 +90,7 @@ public:
     void recorderStart(uint_fast8_t priority)
     {
         SetPostedEventHandler(
-          [=](QP::QEvt const* e) {
-              this->RecorderEventHandler(e);
-          });
+          [=](QP::QEvt const* e) { this->RecorderEventHandler(e); });
 
         dummyStart(priority);
 
@@ -104,9 +101,12 @@ public:
 
     bool isEmpty() const { return m_recordedEvents.isEmpty(); }
 
-    bool isAnyEventRecorded() const { return !m_recordedEvents.isEmpty(); }
+    bool isAnyEventRecorded() const override
+    {
+        return !m_recordedEvents.isEmpty();
+    }
 
-    bool isSignalRecorded(enum_t sig)
+    bool isSignalRecorded(enum_t sig) override
     {
         if (!isAnyEventRecorded()) {
             return false;
@@ -133,7 +133,7 @@ public:
     }
 
 protected:
-    void RecorderEventHandler(QP::QEvt const* e)
+    void RecorderEventHandler(QP::QEvt const* e) override
     {
         if ((e->sig >= m_startingValue) && (e->sig < m_endValue)) {
             if (e->sig == m_oneShotIgnoreSig) {
