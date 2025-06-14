@@ -1,5 +1,5 @@
 /// @brief Provides an implementation of the required QP function
-/// Q_onAssert(..).
+/// Q_onAssert(...).
 ///        This implementation uses cpputest mock and the TEST_EXIT macro
 ///        which throws an exception. This will generally not work in most
 ///        of QP, as most methods are marked noexcept.

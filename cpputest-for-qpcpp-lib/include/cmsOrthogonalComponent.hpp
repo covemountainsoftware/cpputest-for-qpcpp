@@ -25,7 +25,7 @@
 #ifndef CMS_ORTHOGONAL_COMPONENT_HPP
 #define CMS_ORTHOGONAL_COMPONENT_HPP
 
-#include <assert.h>
+#include <cassert>
 #include "qpcpp.hpp"
 
 namespace cms {
@@ -89,7 +89,7 @@ protected:
     /// this method, where it will subscribe
     /// to all published signals of interest
     /// to the component, using the available
-    /// 'm_container' active object context.
+    /// m_container active object context.
     virtual void subscribe() = 0;
 
     QP::QActive* m_container;
