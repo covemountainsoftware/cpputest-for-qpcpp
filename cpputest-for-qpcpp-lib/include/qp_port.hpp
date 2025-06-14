@@ -11,6 +11,10 @@
     #include "qp_config.hpp" // external QP configuration
 #endif
 
+#ifndef QP_API_VERSION
+#define QP_API_VERSION 700 //cpputest for qpcpp support v7.x.x and v8.x.x
+#endif
+
 // no-return function specifier (C++11 Standard)
 // removed due to certain cpputest test functions
 #define Q_NORETURN  void

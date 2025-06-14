@@ -78,7 +78,7 @@ protected:
     {
         ForEachInTuple(me->m_components,
                        [](auto& component) { component.start(); });
-        return Q_TRAN(&running);
+        return me->tran(Q_STATE_CAST(&running));
     }
 
     static QP::QState running(OrthogonalContainer* const me,
@@ -102,7 +102,7 @@ protected:
                     rtn = Q_HANDLED();
                 }
                 else {
-                    rtn = Q_SUPER(&top);
+                    rtn = me->super(&top);
                 }
             } break;
         }

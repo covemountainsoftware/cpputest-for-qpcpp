@@ -78,7 +78,7 @@ protected:
 
     static QP::QState initial(TestComponent* const me, QP::QEvt const* const)
     {
-        return Q_TRAN(&running);
+        return me->tran(Q_STATE_CAST(&running));
     }
 
     static QP::QState running(TestComponent* const me, QP::QEvt const* const e)
@@ -109,7 +109,7 @@ protected:
                 rtn = Q_HANDLED();
                 break;
             default:
-                rtn = Q_SUPER(&top);
+                rtn = me->super(&top);
                 break;
         }
         return rtn;

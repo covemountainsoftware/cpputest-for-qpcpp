@@ -134,7 +134,7 @@ protected:
     static QP::QState initial(DummyActiveObject* const me,
                               QP::QEvt const* const)
     {
-        return Q_TRAN(&running);
+        return me->tran(Q_STATE_CAST(&running));
     }
 
     static QP::QState running(DummyActiveObject* const me,
@@ -143,7 +143,7 @@ protected:
         QP::QState rtn;
         switch (e->sig) {
             case Q_INIT_SIG:
-                rtn = Q_SUPER(&top);
+                rtn = me->super(&top);
                 break;
             case Q_ENTRY_SIG:   // purposeful fall through
             case Q_EXIT_SIG:
@@ -153,7 +153,7 @@ protected:
                 if ((me->m_eventHandler != nullptr) && (e->sig != 0)) {
                     me->m_eventHandler(e);
                 }
-                rtn = Q_SUPER(&top);
+                rtn = me->super(&top);
                 break;
         }
 
