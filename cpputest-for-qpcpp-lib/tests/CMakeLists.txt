@@ -1,4 +1,6 @@
 
+add_compile_options(-Wall -Wextra -Werror -Wpedantic -Wold-style-cast -Wsign-conversion)
+
 # prep for cpputest based build
 set(TEST_APP_NAME  cpputest-for-qpcpp-lib-tests)
 set(TEST_SOURCES

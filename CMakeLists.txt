@@ -5,8 +5,6 @@ include(FetchContent)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_C_STANDARD 11)
 
-add_compile_options(-Wall -Wextra -Werror)
-
 set(CMS_EXTERNALS_TOP_DIR ${CMAKE_CURRENT_SOURCE_DIR}/externals)
 set(CMS_CMAKE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/cpputest-for-qpcpp-lib/cmake CACHE INTERNAL "")
 set(CMS_QASSERT_META_TOP_DIR ${CMS_EXTERNALS_TOP_DIR}/qassert-meta)

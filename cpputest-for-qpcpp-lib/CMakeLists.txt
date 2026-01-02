@@ -11,15 +11,20 @@ add_library(cpputest-for-qpcpp-lib
         src/cms_cpputest_qf_ctrl.cpp
         src/cms_cpputest_q_onAssert.cpp
         src/cms_cpputest_qf_onCleanup.cpp
-        src/cpputestMain.cpp
-        ${CMS_QPCPP_QF_SRCS})
+        src/cpputestMain.cpp)
 
-target_link_libraries(cpputest-for-qpcpp-lib qassert-meta-lib)
+add_library(cms-qpcpp ${CMS_QPCPP_QF_SRCS})
+
+target_link_libraries(cpputest-for-qpcpp-lib qassert-meta-lib cms-qpcpp)
 
 target_compile_options(cpputest-for-qpcpp-lib PRIVATE -Wall -Wextra -Werror -Wpedantic -Wold-style-cast -Wsign-conversion)
+
+target_compile_options(cms-qpcpp PRIVATE -Wall -Wextra -Werror -Wpedantic -Wold-style-cast -Wsign-conversion)
 
 target_include_directories(cpputest-for-qpcpp-lib PUBLIC
         ${CMS_QPCPP_INCLUDE_DIR}
         include)
+
+target_include_directories(cms-qpcpp PUBLIC ${CMS_QPCPP_INCLUDE_DIR})
 
 add_subdirectory(tests)
