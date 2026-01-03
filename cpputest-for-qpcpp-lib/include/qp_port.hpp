@@ -33,6 +33,7 @@
 
 // QF_LOG2 not defined -- use the internal LOG2() implementation
 
+#include <array> //needed by qp.hpp below, starting at 8.1.2
 #include "qequeue.hpp" // QP event queue (for deferring events)
 #include "qmpool.hpp"  // QP memory pool (for event pools)
 #include "qp.hpp"      // QP platform-independent public interface

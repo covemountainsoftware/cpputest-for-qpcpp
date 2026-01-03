@@ -28,10 +28,7 @@
 
 using namespace cms;
 
-TEST_GROUP(BackedQueueTests) {
-  void setup() final {}
-  void teardown() final {}
-};
+TEST_GROUP(BackedQueueTests) {void setup() final {} void teardown() final {}};
 
 TEST(BackedQueueTests, can_create_vector_backed_qequeue)
 {
@@ -89,7 +86,11 @@ TEST(BackedQueueTests, can_push_up_to_max_events)
 
     // confirm full
     CHECK_FALSE(underTest->isEmpty());
+#if QP_VERSION < 810
     CHECK_EQUAL(0, underTest->getNFree());
+#else
+    CHECK_EQUAL(0, underTest->getFree());
+#endif
 
     // empty the queue
     for (size_t i = 0; i < underTest->capacity(); ++i) {
@@ -98,5 +99,9 @@ TEST(BackedQueueTests, can_push_up_to_max_events)
 
     // confirm empty
     CHECK_TRUE(underTest->isEmpty());
+#if QP_VERSION < 810
     CHECK_EQUAL(MaxStorageForEvents + 1, underTest->getNFree());
+#else
+    CHECK_EQUAL(MaxStorageForEvents + 1, underTest->getFree());
+#endif
 }

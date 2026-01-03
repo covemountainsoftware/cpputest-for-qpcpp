@@ -25,6 +25,8 @@
 #include "cms_cpputest_qf_ctrl.hpp"
 #include "qpcpp.hpp"
 #include "CppUTest/TestHarness.h"
+
+#define QP_IMPL //need internal access from QP 8.1.0
 #include "qp_pkg.hpp"
 
 using namespace cms::test;

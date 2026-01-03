@@ -29,6 +29,8 @@
 #include <cassert>
 #include <vector>
 #include "CppUTest/TestHarness.h"
+
+#define QP_IMPL  //need internal access from QP 8.1.0
 #include "qp_pkg.hpp"
 
 namespace cms {
@@ -111,8 +113,8 @@ void Teardown()
 
                 const size_t poolNumOfEvents =
                   l_pubSubEventMemPoolConfigs->at(i).config.numberOfEvents;
-
-                if (poolNumOfEvents != QP::QF::priv_.ePool_[i].getNFree())
+                const auto freeEvents = QP::QF::priv_.ePool_[i].getNFree();
+                if (poolNumOfEvents != freeEvents)
                 {
                     leakDetected = true;
                     fprintf(stderr, "Memory leak in pool: %zu\n", i);

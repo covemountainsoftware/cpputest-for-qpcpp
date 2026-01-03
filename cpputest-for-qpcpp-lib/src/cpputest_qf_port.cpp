@@ -27,8 +27,13 @@ QPSet cpputest_readySet_;   // ready set of active objects
 void QF::init()
 {
     priv_.maxPool_ = static_cast<uint_fast8_t>(0);
-    QP::QF::bzero_(&QP::QTimeEvt::timeEvtHead_[0], sizeof(QP::QTimeEvt::timeEvtHead_));
+#if QP_VERSION < 810
+    QP::QF::bzero_(&QP::QTimeEvt::timeEvtHead_[0],sizeof(QP::QTimeEvt::timeEvtHead_));
     QP::QF::bzero_(&QP::QActive::registry_[0], sizeof(QP::QActive::registry_));
+#else
+    QP::QTimeEvt_head_.fill({});
+    QP::QActive_registry_.fill(nullptr);
+#endif
 }
 
 #if PURPOSEFULLY_NOT_IMPLEMENTED_
@@ -62,13 +67,13 @@ void RunUntilNoReadyActiveObjects()
 {
     while (cpputest_readySet_.notEmpty()) {
         std::uint_fast8_t p = cpputest_readySet_.findMax();
-        #if QP_VERSION > 800
-        QActive* a          = QP::QActive::fromRegistry(p);
-        #elif QP_VERSION > 700
-        QActive* a          = QP::QActive::registry_[p];
-        #else
-        #error "unsupported QP version"
-        #endif
+#if QP_VERSION > 800
+        QActive* a = QP::QActive::fromRegistry(p);
+#elif QP_VERSION > 700
+        QActive* a = QP::QActive::registry_[p];
+#else
+    #error "unsupported QP version"
+#endif
 
         // the active object 'a' must still be registered in QF
         // (e.g., it must not be stopped)
