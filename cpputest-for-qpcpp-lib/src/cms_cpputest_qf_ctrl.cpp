@@ -30,7 +30,7 @@
 #include <vector>
 #include "CppUTest/TestHarness.h"
 
-#define QP_IMPL  //need internal access from QP 8.1.0
+#define QP_IMPL   // need internal access from QP 8.1.0
 #include "qp_pkg.hpp"
 
 namespace cms {
@@ -113,9 +113,14 @@ void Teardown()
 
                 const size_t poolNumOfEvents =
                   l_pubSubEventMemPoolConfigs->at(i).config.numberOfEvents;
+
+#if QP_VERSION < 810
                 const auto freeEvents = QP::QF::priv_.ePool_[i].getNFree();
-                if (poolNumOfEvents != freeEvents)
-                {
+#else
+                const auto freeEvents = QP::QF::priv_.ePool_[i].getFree();
+#endif
+
+                if (poolNumOfEvents != freeEvents) {
                     leakDetected = true;
                     fprintf(stderr, "Memory leak in pool: %zu\n", i);
                 }
@@ -194,8 +199,8 @@ void PublishAndProcess(QP::QEvt const* const e,
 
 void CreateDefaultPools()
 {
-    //see QP/C++ 7.3.0 release notes, where memory pool behavior/sizing
-    //was changed: https://www.state-machine.com/qpcpp/history.html#qpcpp_7_3_0
+    // see QP/C++ 7.3.0 release notes, where memory pool behavior/sizing
+    // was changed: https://www.state-machine.com/qpcpp/history.html#qpcpp_7_3_0
 
     l_pubSubEventMemPoolConfigs = new std::vector<InternalPoolConfig>();
     l_pubSubEventMemPoolConfigs->push_back(
@@ -214,7 +219,7 @@ void CreatePoolConfigsFromArg(const MemPoolConfigs& pubSubEventMemPoolConfigs)
     }
 }
 
-const char * GetVersion()
+const char* GetVersion()
 {
     return CPPUTEST_FOR_QPCPP_LIB_VERSION;
 }
