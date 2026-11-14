@@ -33,20 +33,21 @@
 #define QP_IMPL   // need internal access from QP 8.1.0
 #include "qp_pkg.hpp"
 
-namespace cms {
-namespace test {
-namespace qf_ctrl {
+namespace cms::test::qf_ctrl {
 
 static void CreateDefaultPools();
-static void CreatePoolConfigsFromArg(const MemPoolConfigs& pubSubEventMemPoolConfigs);
+static void
+CreatePoolConfigsFromArg(const MemPoolConfigs& pubSubEventMemPoolConfigs);
 
 using SubscriberList                       = std::vector<QP::QSubscrList>;
 static SubscriberList* l_subscriberStorage = nullptr;
 
 static uint32_t l_ticksPerSecond = 0;
 
-static MemPoolTeardownOption l_memPoolOption = MemPoolTeardownOption::CHECK_FOR_LEAKS;
+static MemPoolTeardownOption l_memPoolOption =
+  MemPoolTeardownOption::CHECK_FOR_LEAKS;
 
+namespace {
 struct InternalPoolConfig {
     explicit InternalPoolConfig(const MemPoolConfig& conf) :
         config(conf), storage()
@@ -56,11 +57,12 @@ struct InternalPoolConfig {
     MemPoolConfig config;
     std::vector<uint8_t> storage;
 };
+}   // namespace
 static std::vector<InternalPoolConfig>* l_pubSubEventMemPoolConfigs = nullptr;
 
-void Setup(enum_t const maxPubSubSignalValue, uint32_t ticksPerSecond,
+void Setup(enum_t const maxPubSubSignalValue, const uint32_t ticksPerSecond,
            const MemPoolConfigs& pubSubEventMemPoolConfigs,
-           MemPoolTeardownOption memPoolOpt)
+           const MemPoolTeardownOption memPoolOpt)
 {
     using namespace QP;
 
@@ -72,7 +74,7 @@ void Setup(enum_t const maxPubSubSignalValue, uint32_t ticksPerSecond,
     l_ticksPerSecond    = ticksPerSecond;
     l_subscriberStorage = new SubscriberList();
     l_subscriberStorage->resize(static_cast<size_t>(maxPubSubSignalValue));
-    QSubscrList nullValue = QSubscrList();
+    constexpr QSubscrList nullValue = QSubscrList();
     std::fill(l_subscriberStorage->begin(), l_subscriberStorage->end(),
               nullValue);
 
@@ -86,9 +88,18 @@ void Setup(enum_t const maxPubSubSignalValue, uint32_t ticksPerSecond,
     QF::init();
     QF::psInit(l_subscriberStorage->data(), maxPubSubSignalValue);
 
+    size_t i = 0;
     for (auto& config : *l_pubSubEventMemPoolConfigs) {
         QF::poolInit(config.storage.data(), config.storage.size(),
                      config.config.eventSize);
+
+        // QP may round the event size and number of events based on internal
+        // requirements. Adjust the config if QP changed the expected pool
+        // config. This avoids false test failures on event pool leak detection
+        // during Teardown().
+        config.config.numberOfEvents = QP::QF::priv_.ePool_[i].getFree();
+        config.config.eventSize      = QP::QF::priv_.ePool_[i].getBlockSize();
+        i++;
     }
 }
 
@@ -130,11 +141,12 @@ void Teardown()
         delete l_pubSubEventMemPoolConfigs;
         l_pubSubEventMemPoolConfigs = nullptr;
 
-        CHECK_TRUE_TEXT(!leakDetected, "A leak was detected in an internal QF event pool!");
+        CHECK_TRUE_TEXT(!leakDetected,
+                        "A leak was detected in an internal QF event pool!");
     }
 }
 
-void ChangeMemPoolTeardownOption(MemPoolTeardownOption memPoolOpt)
+void ChangeMemPoolTeardownOption(const MemPoolTeardownOption memPoolOpt)
 {
     l_memPoolOption = memPoolOpt;
 }
@@ -165,7 +177,7 @@ void MoveTimeForward(const std::chrono::milliseconds& duration)
     }
 }
 
-void PublishEvent(enum_t sig)
+void PublishEvent(const enum_t sig)
 {
     auto e = Q_NEW(QP::QEvt, sig);
     QP::QF::PUBLISH(e, nullptr);
@@ -176,7 +188,7 @@ void PublishEvent(QP::QEvt const* const e)
     QP::QF::PUBLISH(e, nullptr);
 }
 
-void PublishAndProcess(enum_t sig, PublishedEventRecorder* recorder)
+void PublishAndProcess(const enum_t sig, PublishedEventRecorder* recorder)
 {
     if (recorder != nullptr) {
         recorder->oneShotIgnoreEvent(sig);
@@ -224,6 +236,4 @@ const char* GetVersion()
     return CPPUTEST_FOR_QPCPP_LIB_VERSION;
 }
 
-}   // namespace qf_ctrl
-}   // namespace test
-}   // namespace cms
+}   // namespace cms::test::qf_ctrl

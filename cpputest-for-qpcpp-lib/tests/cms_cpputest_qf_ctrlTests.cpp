@@ -26,7 +26,7 @@
 #include "qpcpp.hpp"
 #include "CppUTest/TestHarness.h"
 
-#define QP_IMPL //need internal access from QP 8.1.0
+#define QP_IMPL   // need internal access from QP 8.1.0
 #include "qp_pkg.hpp"
 
 using namespace cms::test;
@@ -40,21 +40,20 @@ TEST_GROUP(qf_ctrlTests)
     void teardown() final
     {
         cms::test::qf_ctrl::Teardown();
-    }
+}
 
-    void ConfirmNumberOfPools(uint32_t poolCount)
-    {
-        CHECK_EQUAL(poolCount, QP::QF::priv_.maxPool_);
-    }
+void ConfirmNumberOfPools(uint32_t poolCount)
+{
+    CHECK_EQUAL(poolCount, QP::QF::priv_.maxPool_);
+}
 
-    void ConfirmPoolEventSize(uint32_t poolIndex, uint32_t blockSize)
-    {
-        CHECK_TRUE(poolIndex < QF_MAX_EPOOL);
-        CHECK_TRUE(poolIndex < QP::QF::priv_.maxPool_);
-        CHECK_EQUAL(blockSize, QP::QF::priv_.ePool_[poolIndex].getBlockSize());
-    }
+void ConfirmPoolEventSize(uint32_t poolIndex, uint32_t blockSize)
+{
+    CHECK_TRUE(poolIndex < QF_MAX_EPOOL);
+    CHECK_TRUE(poolIndex < QP::QF::priv_.maxPool_);
+    CHECK_EQUAL(blockSize, QP::QF::priv_.ePool_[poolIndex].getBlockSize());
+}
 };
-
 
 TEST(qf_ctrlTests, by_default_setup_creates_three_pubsub_pools)
 {
@@ -102,7 +101,7 @@ TEST(qf_ctrlTests, setup_provides_option_to_skip_memory_pool_leak_detection)
 
 TEST(qf_ctrlTests, provides_modify_memory_pool_leak_detection)
 {
-    //Do a setup with leak detection.
+    // Do a setup with leak detection.
     qf_ctrl::Setup(10, 1000, qf_ctrl::MemPoolConfigs {},
                    qf_ctrl::MemPoolTeardownOption::CHECK_FOR_LEAKS);
 
@@ -119,7 +118,7 @@ TEST(qf_ctrlTests, provides_modify_memory_pool_leak_detection)
 }
 
 TEST(qf_ctrlTests,
-     qf_ctrl_provides_for_ability_to_move_time_forward_firing_active_object_timers_as_expected)
+  qf_ctrl_provides_for_ability_to_move_time_forward_firing_active_object_timers_as_expected)
 {
     using namespace std::chrono_literals;
 
@@ -131,8 +130,7 @@ TEST(qf_ctrlTests,
 
     // a 'dummy' active object is needed to verify
     // that QF timers are actually firing.
-    auto dummy = std::unique_ptr<cms::test::DefaultDummyActiveObject>(
-      new cms::test::DefaultDummyActiveObject());
+    auto dummy = std::make_unique<cms::test::DefaultDummyActiveObject>();
     dummy->dummyStart();
     dummy->SetPostedEventHandler([&](QP::QEvt const* e) {
         if (e->sig == SIG_1) {
@@ -146,8 +144,8 @@ TEST(qf_ctrlTests,
         }
     });
 
-    QP::QTimeEvt singleshotTimer(dummy.get(), SIG_1);
-    singleshotTimer.armX(1000, 0);   // single shot timer
+    QP::QTimeEvt singleShotTimer(dummy.get(), SIG_1);
+    singleShotTimer.armX(1000, 0);   // single shot timer
 
     QP::QTimeEvt repeatingTimer(dummy.get(), SIG_2);
     repeatingTimer.armX(2000, 2000);
@@ -162,9 +160,45 @@ TEST(qf_ctrlTests,
 
 TEST(qf_ctrlTests, qf_ctrl_provides_cpputest_for_qpcpp_lib_version)
 {
-    auto version = qf_ctrl::GetVersion();
+    const auto version = qf_ctrl::GetVersion();
     CHECK_TRUE(version != nullptr);
 
-    std::string version_str(version);
+    const std::string version_str(version);
     CHECK_FALSE(version_str.empty());
+}
+
+namespace {
+struct SmallWillRoundEvt : QP::QEvt {
+    uint32_t v;
+};
+struct LessSmallEvt : QP::QEvt {
+    uint64_t v;
+    uint8_t x;
+};
+
+}   // namespace
+
+TEST(
+  qf_ctrlTests,
+  custom_config_with_unrounded_size_reports_false_leak_when_qp_rounds_the_pool_size)
+{
+    enum Sigs : enum_t { A_SIG = QP::Q_USER_SIG, B_SIG, C_SIG, MAX_SIG };
+
+    const qf_ctrl::MemPoolConfigs configs {{sizeof(SmallWillRoundEvt), 10}};
+    qf_ctrl::Setup(MAX_SIG, 100, configs);
+    // no events allocated. Any leak reported is a false positive
+}
+
+TEST(
+  qf_ctrlTests,
+  custom_configs_with_unrounded_size_reports_false_leak_when_qp_rounds_the_pool_size)
+{
+    enum Sigs : enum_t { A_SIG = QP::Q_USER_SIG, B_SIG, C_SIG, MAX_SIG };
+
+    const qf_ctrl::MemPoolConfigs configs {
+      {sizeof(SmallWillRoundEvt), 10},
+      {sizeof(LessSmallEvt), 10},
+    };
+    qf_ctrl::Setup(MAX_SIG, 100, configs);
+    // no events allocated. Any leak reported is a false positive
 }
