@@ -2,7 +2,9 @@ cmake_minimum_required(VERSION 3.16)
 project(cpputest-for-qpcpp-lib VERSION 1.6.1)
 include(FetchContent)
 
-set(CMAKE_CXX_STANDARD 17)
+if(NOT DEFINED CMAKE_CXX_STANDARD)
+    set(CMAKE_CXX_STANDARD 17)
+endif()
 set(CMAKE_C_STANDARD 11)
 
 set(CMS_EXTERNALS_TOP_DIR ${CMAKE_CURRENT_SOURCE_DIR}/externals)

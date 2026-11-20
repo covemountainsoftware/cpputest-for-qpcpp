@@ -96,7 +96,7 @@ public:
     void recorderStart(uint_fast8_t priority)
     {
         SetPostedEventHandler(
-          [=](QP::QEvt const* e) { this->RecorderEventHandler(e); });
+          [this](QP::QEvt const* e) { this->RecorderEventHandler(e); });
 
         dummyStart(priority);
 

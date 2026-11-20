@@ -71,7 +71,7 @@ public:
         m_incomingEvents.fill(nullptr);
 
         if (m_behavior == EventBehavior::RECORDER) {
-            m_eventHandler = [=](QP::QEvt const* e) {
+            m_eventHandler = [this](QP::QEvt const* e) {
                 this->RecorderEventHandler(e);
             };
         }
