@@ -103,7 +103,11 @@ void Setup(enum_t const maxPubSubSignalValue, const uint32_t ticksPerSecond,
         // requirements. Adjust the config if QP changed the expected pool
         // config. This avoids false test failures on event pool leak detection
         // during Teardown().
+#if QP_VERSION < 810
+        config.config.numberOfEvents = QP::QF::priv_.ePool_[i].getNFree();
+#else
         config.config.numberOfEvents = QP::QF::priv_.ePool_[i].getFree();
+#endif
         config.config.eventSize      = QP::QF::priv_.ePool_[i].getBlockSize();
         i++;
     }

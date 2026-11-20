@@ -130,7 +130,7 @@ TEST(PublishedEventRecorderTests,
 
 TEST(PublishedEventRecorderTests, can_record_custom_event)
 {
-    static constexpr TestEvent testEvent(TEST1_PUBLISH_SIG, 5);
+    static const TestEvent testEvent(TEST1_PUBLISH_SIG, 5);
     qf_ctrl::PublishAndProcess(&testEvent);
     CHECK_TRUE(mUnderTest->isAnyEventRecorded());
     auto event = mUnderTest->getRecordedEvent<TestEvent>();
