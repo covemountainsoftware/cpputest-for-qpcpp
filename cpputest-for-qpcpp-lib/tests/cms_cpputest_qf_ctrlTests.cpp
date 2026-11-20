@@ -202,3 +202,23 @@ TEST(
     qf_ctrl::Setup(MAX_SIG, 100, configs);
     // no events allocated. Any leak reported is a false positive
 }
+TEST(qf_ctrlTests,
+     ready_set_from_a_prior_test_does_not_leak_into_the_next_test)
+{
+    // Simulate a prior test that leaves an active object destroyed
+    // (but not stopped) with an event still queued. A static (non-pool)
+    // event is used so the prior "test" passes the pool leak check.
+    static const QP::QEvt staticEvt(QP::Q_USER_SIG);
+
+    qf_ctrl::Setup(QP::Q_USER_SIG + 1, 100);
+    auto* dummy = new DefaultDummyActiveObject();
+    dummy->dummyStart();
+    dummy->POST(&staticEvt, nullptr);
+    delete dummy;
+    qf_ctrl::Teardown();
+
+    // Simulate the next, unrelated test. Processing events must not
+    // act on stale ready-set state left by the prior test.
+    qf_ctrl::Setup(QP::Q_USER_SIG + 1, 100);
+    qf_ctrl::ProcessEvents();
+}

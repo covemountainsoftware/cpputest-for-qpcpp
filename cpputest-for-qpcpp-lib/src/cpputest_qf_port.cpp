@@ -27,6 +27,10 @@ QPSet cpputest_readySet_;   // ready set of active objects
 void QF::init()
 {
     priv_.maxPool_ = static_cast<uint_fast8_t>(0);
+
+    // clear any ready-set state left behind by a prior test
+    cpputest_readySet_.setEmpty();
+
 #if QP_VERSION < 810
     QP::QF::bzero_(&QP::QTimeEvt::timeEvtHead_[0],sizeof(QP::QTimeEvt::timeEvtHead_));
     QP::QF::bzero_(&QP::QActive::registry_[0], sizeof(QP::QActive::registry_));
