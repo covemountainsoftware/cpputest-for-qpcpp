@@ -68,3 +68,17 @@ TEST(dummy_ao_tests, dummy_ao_provides_recorder_option)
     CHECK_TRUE(dummy->isAnyEventRecorded());
     CHECK_TRUE(dummy->isSignalRecorded(TEST2_SIG));
 }
+TEST(dummy_ao_tests,
+     dummy_ao_in_recorder_mode_will_gc_recorded_events_upon_destruction)
+{
+    static constexpr enum_t TEST1_SIG = QP::Q_USER_SIG + 1;
+    auto dummy = CreateAndStartDummyActiveObject(
+      DefaultDummyActiveObject::EventBehavior::RECORDER);
+
+    // a dynamic (pool) event, recorded but never retrieved by the test
+    qf_ctrl::PostAndProcess(Q_NEW(QP::QEvt, TEST1_SIG), dummy.get());
+    CHECK_TRUE(dummy->isAnyEventRecorded());
+
+    // destroy before Teardown(); Teardown's pool leak check must pass
+    dummy.reset();
+}

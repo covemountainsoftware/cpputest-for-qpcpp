@@ -77,7 +77,19 @@ public:
         }
     }
 
-    virtual ~DummyActiveObject() = default;
+    virtual ~DummyActiveObject()
+    {
+        // return any recorded events to the QF pools. If QF was already
+        // torn down, the pools are gone; returning events to them would
+        // be a use-after-free. Destroy before qf_ctrl::Teardown().
+        const bool qfIsSetup = qf_ctrl::IsSetup();
+        while (!m_recordedEvents.isEmpty()) {
+            const auto e = m_recordedEvents.get(0);
+            if (qfIsSetup) {
+                QP::QF::gc(e);
+            }
+        }
+    }
 
     DummyActiveObject(const DummyActiveObject&)            = delete;
     DummyActiveObject& operator=(const DummyActiveObject&) = delete;
