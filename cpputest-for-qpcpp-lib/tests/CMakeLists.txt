@@ -1,6 +1,4 @@
 
-add_compile_options(-Wall -Wextra -Werror -Wpedantic -Wold-style-cast -Wsign-conversion)
-
 # prep for cpputest based build
 set(TEST_APP_NAME  cpputest-for-qpcpp-lib-tests)
 set(TEST_SOURCES
@@ -20,3 +18,7 @@ set(TEST_SOURCES
 include(${CMS_CMAKE_DIR}/cpputestCMake.cmake)
 
 target_link_libraries(${TEST_APP_NAME} cpputest-for-qpcpp-lib  ${CPPUTEST_LDFLAGS})
+
+# some tests inspect QP internals (qp_pkg.hpp)
+target_include_directories(${TEST_APP_NAME} SYSTEM PRIVATE ${CMS_QPCPP_SRC_DIR})
+target_compile_options(${TEST_APP_NAME} PRIVATE ${CMS_WARNING_FLAGS})

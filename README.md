@@ -58,15 +58,26 @@ be compatible with this code.
 
 ## Prerequisites
 
-* CMake and associated build tools were used to develop
+* CMake 3.24 or newer and associated build tools were used to develop
   and prove out this project.
 * QP/C++
   * You can override the QP/C++ to another directory with your project's exact QP/C++ source code. 
     Define the cmake variable CMS_QPCPP_TOP_DIR before including the internal CMakeLists.txt. 
   * or:
     * Do not define CMS_QPCPP_TOP_DIR, and the internal cmake will fetch the appropriate QP/C++ repo.
-* CppUTest (version 4.0, may still work with 3.8, but no longer being confirmed) 
+* CppUTest (version 4.0, may still work with 3.8, but no longer being confirmed).
+  This project uses your CppUTest, located in this order:
+  * `CppUTest` and `CppUTestExt` targets already defined by your project.
+  * The `CPPUTEST_HOME` environment variable (a CMake install of CppUTest,
+    or a directory with `include/` and `lib/`).
+  * pkg-config (e.g. `apt install cpputest` or Homebrew).
+  * A CppUTest CMake package (`find_package(CppUTest CONFIG)`), e.g. via
+    `CMAKE_PREFIX_PATH`.
 * This project requires support for C++17.
+* Warnings are treated as errors only when this project is the top-level
+  CMake project. Set `CMS_WARNINGS_AS_ERRORS` to override. Third-party
+  code (CppUTest, QP/C++) is never built or included with this project's
+  warning flags.
 
 ## Continuous Integration
 

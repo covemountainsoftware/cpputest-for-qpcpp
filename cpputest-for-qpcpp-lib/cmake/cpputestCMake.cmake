@@ -1,27 +1,19 @@
-if(DEFINED ENV{CPPUTEST_HOME})
-    message(STATUS "Using CppUTest home: $ENV{CPPUTEST_HOME}")
-    set(CPPUTEST_INCLUDE_DIRS $ENV{CPPUTEST_HOME}/include)
-    set(CPPUTEST_LIBRARIES $ENV{CPPUTEST_HOME}/lib)
-    set(CPPUTEST_LDFLAGS CppUTest CppUTestExt)
-else()
-    find_package(PkgConfig REQUIRED)
-    pkg_search_module(CPPUTEST REQUIRED cpputest>=3.8)
-    message(STATUS "Found CppUTest version ${CPPUTEST_VERSION}")
-endif()
+# Creates a CppUTest based test executable and runs it after each build.
+#
+# Expects:
+#   TEST_APP_NAME - name of the test executable target to create
+#   TEST_SOURCES  - the test source files
+#   APP_LIB_NAME  - (optional) a library under test to link
+#
+# Provides CPPUTEST_LDFLAGS (cms::cpputest) for use with
+# target_link_libraries(${TEST_APP_NAME} ...).
+include(${CMAKE_CURRENT_LIST_DIR}/cpputestFind.cmake)
 
-if(CPPUTEST_VERSION_MAJOR LESS 4)
-    # likely 3.8
-    add_compile_definitions(CMS_CPPUTEST_LEGACY)
-else()
-    # 4.0 version or newer
-    add_compile_definitions(CMS_CPPUTEST_V4)
-endif()
-
-include_directories(${CPPUTEST_INCLUDE_DIRS})
-link_directories(${CPPUTEST_LIBRARIES})
+set(CPPUTEST_LDFLAGS cms::cpputest)
 
 add_executable(${TEST_APP_NAME} ${TEST_SOURCES})
 target_link_libraries(${TEST_APP_NAME} ${APP_LIB_NAME} ${CPPUTEST_LDFLAGS})
 
-# (5) Run the test once the build is done
-add_custom_command(TARGET ${TEST_APP_NAME} COMMAND ./${TEST_APP_NAME} POST_BUILD)
+# Run the test once the build is done
+add_custom_command(TARGET ${TEST_APP_NAME} POST_BUILD
+                   COMMAND $<TARGET_FILE:${TEST_APP_NAME}>)
