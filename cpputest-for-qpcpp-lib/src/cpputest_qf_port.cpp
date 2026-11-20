@@ -49,14 +49,15 @@ int_t QF::run()
 #endif
 
 /**
- * Fake cpputest event loop for QActive. Only loops
- * until queue is empty, then removes it from the
- * ready set.
- * @param act an active object to run an event loop upon.
+ * Fake cpputest event loop for QActive. Dispatches a single event
+ * (run-to-completion step), matching the QV kernel, so the scheduler
+ * re-evaluates priorities between events. Removes the active object
+ * from the ready set once its queue is empty.
+ * @param act an active object to run one RTC step upon.
  */
 void QActive::evtLoop_(QActive* act)
 {
-    while (!act->m_eQueue.isEmpty()) {
+    if (!act->m_eQueue.isEmpty()) {
         QEvt const* e = act->get_();
         act->dispatch(e, act->m_prio);
         QF::gc(e);

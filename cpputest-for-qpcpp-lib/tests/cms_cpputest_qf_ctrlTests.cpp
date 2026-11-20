@@ -24,6 +24,7 @@
 #include "cmsDummyActiveObject.hpp"
 #include "cms_cpputest_qf_ctrl.hpp"
 #include "qpcpp.hpp"
+#include <deque>
 #include "CppUTest/TestHarness.h"
 
 #define QP_IMPL   // need internal access from QP 8.1.0
@@ -221,4 +222,46 @@ TEST(qf_ctrlTests,
     // act on stale ready-set state left by the prior test.
     qf_ctrl::Setup(QP::Q_USER_SIG + 1, 100);
     qf_ctrl::ProcessEvents();
+}
+
+TEST(qf_ctrlTests,
+     process_events_dispatches_in_priority_order_like_qv_one_event_per_pass)
+{
+    // A low priority AO, while handling event A (with event B already
+    // queued), posts to a high priority AO. Per QV/QK semantics, the
+    // high priority AO must run before the low priority AO's event B.
+    enum Sigs : enum_t { A_SIG = QP::Q_USER_SIG, B_SIG, HI_SIG, MAX_SIG };
+    static const QP::QEvt evtA(A_SIG);
+    static const QP::QEvt evtB(B_SIG);
+    static const QP::QEvt evtHi(HI_SIG);
+
+    qf_ctrl::Setup(MAX_SIG, 100);
+
+    std::deque<enum_t> dispatched;
+    auto lo = CreateAndStartDummyActiveObject(
+      DefaultDummyActiveObject::EventBehavior::CALLBACK,
+      qf_ctrl::DUMMY_AO_A_PRIORITY);
+    auto hi = CreateAndStartDummyActiveObject(
+      DefaultDummyActiveObject::EventBehavior::CALLBACK,
+      qf_ctrl::DUMMY_AO_B_PRIORITY);
+
+    lo->SetPostedEventHandler([&](const QP::QEvt* e) {
+        dispatched.push_back(e->sig);
+        if (e->sig == A_SIG) {
+            hi->POST(&evtHi, nullptr);
+        }
+    });
+    hi->SetPostedEventHandler(
+      [&](const QP::QEvt* e) { dispatched.push_back(e->sig); });
+
+    lo->POST(&evtA, nullptr);
+    lo->POST(&evtB, nullptr);
+    qf_ctrl::ProcessEvents();
+
+    LONGS_EQUAL(3, dispatched.size());
+    LONGS_EQUAL(A_SIG, dispatched.front());
+    dispatched.pop_front();
+    LONGS_EQUAL(HI_SIG, dispatched.front());
+    dispatched.pop_front();
+    LONGS_EQUAL(B_SIG, dispatched.front());
 }
