@@ -12,22 +12,49 @@ env:
 
 jobs:
   build:
-    # The CMake configure and build commands are platform agnostic and should work equally well on Windows or Mac.
-    # You can convert this to a matrix build if you need cross-platform coverage.
-    # See: https://docs.github.com/en/free-pro-team@latest/actions/learn-github-actions/managing-complex-workflows#using-a-build-matrix
+    name: ${{ matrix.name }}
     runs-on: ubuntu-24.04
 
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # default QP/C++ (as fetched by this project's CMake)
+          - name: QP/C++ default, C++17
+            cmake_args: ""
+          - name: QP/C++ default, C++20
+            cmake_args: "-DCMAKE_CXX_STANDARD=20"
+          # an older QP/C++, covering the QP_VERSION < 810 and > 700 code paths
+          - name: QP/C++ 7.3.4, C++17
+            qpcpp_ref: 10441f7a03fa956b9e4772a073a05a96487983e2   # 7.3.4
+            cmake_args: ""
+
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
       with:
         submodules: recursive
+
+    - name: Checkout QP/C++ override
+      if: matrix.qpcpp_ref != ''
+      uses: actions/checkout@v4
+      with:
+        repository: QuantumLeaps/qpcpp
+        ref: ${{ matrix.qpcpp_ref }}
+        path: qpcpp-override
+
     - name: Install packages
       run: sudo apt install -y cpputest cppcheck
+
     - name: Configure CMake
       # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
       # See https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html?highlight=cmake_build_type
-      run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
+      run: |
+        QP_ARGS=""
+        if [ -n "${{ matrix.qpcpp_ref }}" ]; then
+          QP_ARGS="-DCMS_QPCPP_TOP_DIR=${{ github.workspace }}/qpcpp-override"
+        fi
+        cmake -B ${{ github.workspace }}/build -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }} ${{ matrix.cmake_args }} $QP_ARGS
 
-    - name: Build
-      # Build your program with the given configuration
-      run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}     
+    - name: Build and test
+      # Build your program with the given configuration. The unit tests run as a post-build step.
+      run: cmake --build ${{ github.workspace }}/build --config ${{ env.BUILD_TYPE }}
