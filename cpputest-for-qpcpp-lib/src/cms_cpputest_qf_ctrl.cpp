@@ -27,6 +27,7 @@
 #include "qpcpp.hpp"
 #include <algorithm>
 #include <cassert>
+#include <limits>
 #include <vector>
 #include "CppUTest/TestHarness.h"
 
@@ -43,6 +44,10 @@ using SubscriberList                       = std::vector<QP::QSubscrList>;
 static SubscriberList* l_subscriberStorage = nullptr;
 
 static uint32_t l_ticksPerSecond = 0;
+
+// time less than one tick, in units of (milliseconds * ticksPerSecond),
+// carried between MoveTimeForward() calls.
+static uint64_t l_subTickRemainder = 0;
 
 static MemPoolTeardownOption l_memPoolOption =
   MemPoolTeardownOption::CHECK_FOR_LEAKS;
@@ -72,6 +77,7 @@ void Setup(enum_t const maxPubSubSignalValue, const uint32_t ticksPerSecond,
 
     l_memPoolOption     = memPoolOpt;
     l_ticksPerSecond    = ticksPerSecond;
+    l_subTickRemainder  = 0;
     l_subscriberStorage = new SubscriberList();
     l_subscriberStorage->resize(static_cast<size_t>(maxPubSubSignalValue));
     constexpr QSubscrList nullValue = QSubscrList();
@@ -110,7 +116,8 @@ void Teardown()
     delete l_subscriberStorage;
     l_subscriberStorage = nullptr;
 
-    l_ticksPerSecond = 0;
+    l_ticksPerSecond   = 0;
+    l_subTickRemainder = 0;
 
     QF::stop();
 
@@ -161,24 +168,38 @@ void ProcessEvents()
     QP::RunUntilNoReadyActiveObjects();
 }
 
+void MoveTicksForward(const uint32_t ticks)
+{
+    assert(l_ticksPerSecond != 0);
+
+    for (uint32_t i = 0; i < ticks; ++i) {
+        QP::QTimeEvt::tick(0, nullptr);
+        ProcessEvents();
+    }
+}
+
 void MoveTimeForward(const std::chrono::milliseconds& duration)
 {
     assert(l_ticksPerSecond != 0);
     assert(duration.count() >= 0);
 
-    using LoopCounter_t = uint64_t;
+    constexpr uint64_t MS_PER_SECOND = 1000;
 
-    constexpr LoopCounter_t ONCE = 1;
+    // integer math, in units of (milliseconds * ticksPerSecond), so no
+    // ticks are lost to floating point rounding. Any remainder less than
+    // one tick carries into the next call.
+    const uint64_t total =
+      l_subTickRemainder +
+      static_cast<uint64_t>(duration.count()) * l_ticksPerSecond;
 
-    double millisecondsPerTick = 1000.0 / l_ticksPerSecond;
+    uint64_t ticks     = total / MS_PER_SECOND;
+    l_subTickRemainder = total % MS_PER_SECOND;
 
-    // if called, ensure at least one tick is processed
-    LoopCounter_t ticks = std::max(
-      ONCE, static_cast<LoopCounter_t>(duration.count() / millisecondsPerTick));
-
-    for (LoopCounter_t i = 0; i < ticks; ++i) {
-        QP::QTimeEvt::tick(0, nullptr);
-        ProcessEvents();
+    while (ticks > 0) {
+        const auto chunk = static_cast<uint32_t>(
+          std::min<uint64_t>(ticks, std::numeric_limits<uint32_t>::max()));
+        MoveTicksForward(chunk);
+        ticks -= chunk;
     }
 }
 

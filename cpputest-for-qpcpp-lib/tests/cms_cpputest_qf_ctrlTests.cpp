@@ -43,12 +43,12 @@ TEST_GROUP(qf_ctrlTests)
         cms::test::qf_ctrl::Teardown();
 }
 
-void ConfirmNumberOfPools(uint32_t poolCount)
+static void ConfirmNumberOfPools(uint32_t poolCount)
 {
     CHECK_EQUAL(poolCount, QP::QF::priv_.maxPool_);
 }
 
-void ConfirmPoolEventSize(uint32_t poolIndex, uint32_t blockSize)
+static void ConfirmPoolEventSize(uint32_t poolIndex, uint32_t blockSize)
 {
     CHECK_TRUE(poolIndex < QF_MAX_EPOOL);
     CHECK_TRUE(poolIndex < QP::QF::priv_.maxPool_);
@@ -170,11 +170,11 @@ TEST(qf_ctrlTests, qf_ctrl_provides_cpputest_for_qpcpp_lib_version)
 
 namespace {
 struct SmallWillRoundEvt : QP::QEvt {
-    uint32_t v;
+    [[maybe_unused]] uint32_t v;
 };
 struct LessSmallEvt : QP::QEvt {
-    uint64_t v;
-    uint8_t x;
+    [[maybe_unused]] uint64_t v;
+    [[maybe_unused]] uint8_t x;
 };
 
 }   // namespace
@@ -264,4 +264,102 @@ TEST(qf_ctrlTests,
     LONGS_EQUAL(HI_SIG, dispatched.front());
     dispatched.pop_front();
     LONGS_EQUAL(B_SIG, dispatched.front());
+}
+
+namespace {
+
+/// Counts simulated clock ticks (tick rate 0) using a periodic
+/// one-tick time event posted to a dummy active object.
+/// Construct after qf_ctrl::Setup().
+class TickCounter {
+public:
+    static constexpr enum_t TICK_SIG = QP::Q_USER_SIG;
+
+    TickCounter() :
+        m_dummy(CreateAndStartDummyActiveObject()),
+        m_timer(m_dummy.get(), TICK_SIG)
+    {
+        m_dummy->SetPostedEventHandler(
+          [this](QP::QEvt const*) { ++m_count; });
+        m_timer.armX(1, 1);
+    }
+
+    ~TickCounter() { m_timer.disarm(); }
+
+    TickCounter(const TickCounter&)            = delete;
+    TickCounter& operator=(const TickCounter&) = delete;
+    TickCounter(TickCounter&&)                 = delete;
+    TickCounter& operator=(TickCounter&&)      = delete;
+
+    [[nodiscard]] uint32_t count() const { return m_count; }
+
+private:
+    DefaultDummyActiveObjectUniquePtr m_dummy;
+    QP::QTimeEvt m_timer;
+    uint32_t m_count = 0;
+};
+
+}   // namespace
+
+TEST(qf_ctrlTests, move_time_forward_does_not_drop_ticks_to_rounding)
+{
+    using namespace std::chrono_literals;
+    qf_ctrl::Setup(TickCounter::TICK_SIG + 1, 30);
+    TickCounter ticks;
+
+    qf_ctrl::MoveTimeForward(1000ms);
+    CHECK_EQUAL(30, ticks.count());
+}
+
+TEST(qf_ctrlTests, move_time_forward_carries_sub_tick_remainder_across_calls)
+{
+    using namespace std::chrono_literals;
+    qf_ctrl::Setup(TickCounter::TICK_SIG + 1, 100);
+    TickCounter ticks;
+
+    // 20 x 5 ms == 100 ms == 10 ticks at 100 Hz
+    for (int i = 0; i < 20; ++i) {
+        qf_ctrl::MoveTimeForward(5ms);
+    }
+    CHECK_EQUAL(10, ticks.count());
+}
+
+TEST(qf_ctrlTests, move_time_forward_less_than_one_tick_does_not_force_a_tick)
+{
+    using namespace std::chrono_literals;
+    qf_ctrl::Setup(TickCounter::TICK_SIG + 1, 100);
+    TickCounter ticks;
+
+    qf_ctrl::MoveTimeForward(5ms);
+    CHECK_EQUAL(0, ticks.count());
+    qf_ctrl::MoveTimeForward(5ms);
+    CHECK_EQUAL(1, ticks.count());
+}
+
+TEST(qf_ctrlTests, move_time_forward_remainder_does_not_carry_into_next_test)
+{
+    using namespace std::chrono_literals;
+
+    // simulate a prior test leaving a 5 ms remainder at 100 Hz
+    qf_ctrl::Setup(TickCounter::TICK_SIG + 1, 100);
+    qf_ctrl::MoveTimeForward(5ms);
+    qf_ctrl::Teardown();
+
+    qf_ctrl::Setup(TickCounter::TICK_SIG + 1, 100);
+    TickCounter ticks;
+    qf_ctrl::MoveTimeForward(5ms);
+    CHECK_EQUAL(0, ticks.count());
+}
+
+TEST(qf_ctrlTests, move_ticks_forward_processes_exactly_the_requested_ticks)
+{
+    qf_ctrl::Setup(TickCounter::TICK_SIG + 1, 100);
+    TickCounter ticks;
+
+    qf_ctrl::MoveTicksForward(0);
+    CHECK_EQUAL(0, ticks.count());
+    qf_ctrl::MoveTicksForward(1);
+    CHECK_EQUAL(1, ticks.count());
+    qf_ctrl::MoveTicksForward(7);
+    CHECK_EQUAL(8, ticks.count());
 }

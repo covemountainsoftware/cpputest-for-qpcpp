@@ -167,7 +167,11 @@ provides for convenience and helper methods such as:
 * `cms::test::qf_ctrl::MoveTimeForward(...)` - call this to advance 'time',
   potentially activating any internal active object timers. Many seconds,
   minutes, or hours, of time may be tested with this approach in a few 
-  milliseconds of host CPU time.
+  milliseconds of host CPU time. Time less than one tick carries into the
+  next call, so repeated small steps add up exactly; no tick is forced.
+* `cms::test::qf_ctrl::MoveTicksForward(...)` - call this to advance time by
+  an exact number of system clock ticks. Use `MoveTicksForward(1)` to
+  guarantee a single tick.
 * `cms::test::qf_ctrl::PublishEvent(...)` - convenience method enabling 
   publishing of events from a test.
 * `cms::test::qf_ctrl::PublishAndProcess(...)` - additional convenience methods,

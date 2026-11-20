@@ -85,10 +85,18 @@ bool IsSetup();
 /// to the QF subsystem.
 void ProcessEvents();
 
+/// During a unit test, call this function to "move time forward" by
+/// an exact number of system clock ticks (tick rate 0). Each tick
+/// executes the QF framework's tick function followed by ProcessEvents().
+/// \param ticks - how many ticks should be simulated. Zero is a no-op.
+void MoveTicksForward(uint32_t ticks);
+
 /// During a unit test, call this function to "move time forward."
-/// Internally, this executes the QF framework's tick function
-/// the appropriate number of times to simulate the forward
-/// movement of time.
+/// Converts the duration to ticks using the ticksPerSecond provided to
+/// Setup() and calls MoveTicksForward(). Time less than one tick is not
+/// lost: the remainder carries into the next call (until Teardown()).
+/// For example, at 100 Hz, two calls of 5 ms each produce one tick.
+/// No tick is forced; to guarantee a tick, use MoveTicksForward(1).
 /// \param duration - how many milliseconds of time should be simulated
 void MoveTimeForward(const std::chrono::milliseconds &duration);
 
