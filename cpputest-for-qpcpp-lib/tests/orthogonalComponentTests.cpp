@@ -30,12 +30,14 @@
 using namespace cms;
 using namespace cms::test;
 
+namespace {
 enum InternalTestSigs {
     TEST1_PUBLISH_SIG = QP::Q_USER_SIG + 1,
     TEST2_PUBLISH_SIG,
     TEST3_POST_SIG,
     TEST4_MISC_SIG
 };
+}
 
 // since the orthogonal component is a pure virtual base
 // class, we must create a test concrete class.
@@ -56,16 +58,7 @@ public:
     {
     }
 
-protected:
-    void subscribe() override
-    {
-        // subscribe to all published events of interest
-        // using the container's active object context.
-        m_container->subscribe(TEST1_PUBLISH_SIG);
-        mock(MOCK_NAME).actualCall("subscribe");
-    }
-
-    bool isSignalDesired(enum_t sig) const override
+    [[nodiscard]] bool isSignalDesired(const enum_t sig) const override
     {
         switch (sig) {
             case TEST1_PUBLISH_SIG:
@@ -74,6 +67,15 @@ protected:
             default:
                 return false;
         }
+    }
+
+protected:
+    void subscribe() override
+    {
+        // subscribe to all published events of interest
+        // using the container's active object context.
+        m_container->subscribe(TEST1_PUBLISH_SIG);
+        mock(MOCK_NAME).actualCall("subscribe");
     }
 
     static QP::QState initial(TestComponent* const me, QP::QEvt const* const)
@@ -133,11 +135,9 @@ TEST_GROUP(OrthogonalComponentTests)
     void teardown() final
     {
         mock().clear();
-        cms::test::qf_ctrl::Teardown();
         delete aoTestCtx;
-        if (underTest != nullptr) {
-            delete underTest;
-        }
+        delete underTest;
+        cms::test::qf_ctrl::Teardown();
     }
 
     void createUnitUnderTest()
@@ -174,7 +174,7 @@ TEST(
 
 TEST(OrthogonalComponentTests, component_will_process_desired_published_signal)
 {
-    static const QP::QEvt event = QP::QEvt(TEST1_PUBLISH_SIG);
+    static constexpr auto event = QP::QEvt(TEST1_PUBLISH_SIG);
 
     createUnitUnderTest();
     startUnitUnderTest();
@@ -187,7 +187,7 @@ TEST(OrthogonalComponentTests, component_will_process_desired_published_signal)
 TEST(OrthogonalComponentTests,
      component_will_not_process_undesired_published_signal)
 {
-    static const QP::QEvt event = QP::QEvt(TEST2_PUBLISH_SIG);
+    static constexpr auto event = QP::QEvt(TEST2_PUBLISH_SIG);
 
     createUnitUnderTest();
     startUnitUnderTest();
@@ -200,7 +200,7 @@ TEST(OrthogonalComponentTests,
 TEST(OrthogonalComponentTests,
      component_will_process_desired_direct_post_signal)
 {
-    static const QP::QEvt event = QP::QEvt(TEST3_POST_SIG);
+    static constexpr auto event = QP::QEvt(TEST3_POST_SIG);
 
     createUnitUnderTest();
     startUnitUnderTest();
@@ -212,7 +212,7 @@ TEST(OrthogonalComponentTests,
 
 TEST(OrthogonalComponentTests, component_will_not_process_undesired_misc_signal)
 {
-    static const QP::QEvt event = QP::QEvt(TEST4_MISC_SIG);
+    static constexpr auto event = QP::QEvt(TEST4_MISC_SIG);
 
     createUnitUnderTest();
     startUnitUnderTest();

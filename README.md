@@ -195,6 +195,10 @@ To create tests for an active object, the following outline is considered:
    the equivalent. See also `cms::test::qf_ctrl::MoveTimeForward(...)`.
 8. Confirm how the unit under test responded. Did it call the `mock()` as expected? Did
    it publish a response into the framework? What data do I need to inspect for changes?
+9. Implement the `teardown()` handler. Destroy the active object under test and any
+   helpers (such as a `PublishedEventRecorder`) first, then call 
+   `cms::test::qf_ctrl::Teardown()` last. This returns any held events to the
+   QF event pools before memory pool leak detection runs.
 
 That is it! That is the basic pattern for testing an active object. See  
 examples at: `examples/hwLockCtrlService/test/hwLockCtrlServiceTests.cpp` to

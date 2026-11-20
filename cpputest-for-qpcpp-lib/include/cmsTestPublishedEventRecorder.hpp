@@ -30,8 +30,7 @@
 #include "qevtUniquePtr.hpp"
 #include "qpcpp.hpp"
 
-namespace cms {
-namespace test {
+namespace cms::test {
 
 /// PublishedEventRecorder uses the DummyActiveObject
 /// class (a QActive), and subscribes to a desired range of signals.
@@ -47,9 +46,10 @@ private:
 
 public:
     static PublishedEventRecorder*
-    CreatePublishedEventRecorder(uint_fast8_t priority, enum_t startingValue,
-                                 enum_t endValue,
-                                 size_t maxRecordedEventCount = 100)
+    CreatePublishedEventRecorder(const uint_fast8_t priority,
+                                 const enum_t startingValue,
+                                 const enum_t endValue,
+                                 const size_t maxRecordedEventCount = 100)
     {
         auto recorder = new PublishedEventRecorder(startingValue, endValue,
                                                    maxRecordedEventCount);
@@ -76,11 +76,17 @@ public:
 
     ~PublishedEventRecorder() override
     {
+        // If QF was already torn down, the event pools (and any recorded
+        // events) are gone; returning events to them would be a
+        // use-after-free. Destroy the recorder before qf_ctrl::Teardown().
+        const bool qfIsSetup = qf_ctrl::IsSetup();
         while (!m_recordedEvents.isEmpty()) {
             const auto e = m_recordedEvents.get(0);
-            QP::QF::gc(e);
+            if (qfIsSetup) {
+                QP::QF::gc(e);
+            }
         }
-    };
+    }
 
     PublishedEventRecorder(const PublishedEventRecorder&)            = delete;
     PublishedEventRecorder& operator=(const PublishedEventRecorder&) = delete;
@@ -99,9 +105,9 @@ public:
         }
     }
 
-    bool isEmpty() const { return m_recordedEvents.isEmpty(); }
+    [[nodiscard]] bool isEmpty() const { return m_recordedEvents.isEmpty(); }
 
-    bool isAnyEventRecorded() const override
+    [[nodiscard]] bool isAnyEventRecorded() const override
     {
         return !m_recordedEvents.isEmpty();
     }
@@ -147,7 +153,6 @@ protected:
     }
 };
 
-}   // namespace test
-}   // namespace cms
+} // namespace cms::test
 
 #endif   // CMS_TEST_PUBLISHED_EVENT_RECORDER_HPP

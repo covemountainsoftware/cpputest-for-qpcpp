@@ -57,8 +57,10 @@ TEST_GROUP(PublishedEventRecorderTests) {
 
     void teardown() final
     {
-        cms::test::qf_ctrl::Teardown();
+        // destroy the recorder before Teardown() so any recorded events
+        // are returned to the pools before leak detection.
         delete mUnderTest;
+        cms::test::qf_ctrl::Teardown();
     }
 
     void ConfirmOneTrivialEventRecordingBehavior(enum_t sig) const
@@ -128,11 +130,36 @@ TEST(PublishedEventRecorderTests,
 
 TEST(PublishedEventRecorderTests, can_record_custom_event)
 {
-    static const TestEvent testEvent(TEST1_PUBLISH_SIG, 5);
+    static constexpr TestEvent testEvent(TEST1_PUBLISH_SIG, 5);
     qf_ctrl::PublishAndProcess(&testEvent);
     CHECK_TRUE(mUnderTest->isAnyEventRecorded());
     auto event = mUnderTest->getRecordedEvent<TestEvent>();
     CHECK_TRUE(event != nullptr);
     CHECK_EQUAL(TEST1_PUBLISH_SIG, event->sig);
     CHECK_EQUAL(5, event->testValue);
+}
+
+TEST_GROUP(PublishedEventRecorderTeardownOrderTests)
+{
+    static constexpr enum_t TEST1_PUBLISH_SIG = QP::Q_USER_SIG + 1;
+    static constexpr enum_t TEST2_PUBLISH_SIG = TEST1_PUBLISH_SIG + 1;
+};
+
+TEST(PublishedEventRecorderTeardownOrderTests,
+     recorder_destroyed_after_qf_ctrl_teardown_does_not_touch_freed_qf_pools)
+{
+    // Leak detection is disabled so Teardown() completes with an event
+    // still held by the recorder (e.g., a test that failed before
+    // retrieving it). The recorder is then destroyed after QF is torn down,
+    // which must not access the (now freed) QF event pools.
+    qf_ctrl::Setup(TEST2_PUBLISH_SIG * 2, 100, qf_ctrl::MemPoolConfigs(),
+                   qf_ctrl::MemPoolTeardownOption::IGNORE);
+    auto* recorder = PublishedEventRecorder::CreatePublishedEventRecorder(
+      1, TEST1_PUBLISH_SIG, TEST2_PUBLISH_SIG + 1);
+    qf_ctrl::PublishEvent(TEST1_PUBLISH_SIG);
+    qf_ctrl::ProcessEvents();
+    CHECK_TRUE(recorder->isAnyEventRecorded());
+
+    qf_ctrl::Teardown();
+    delete recorder;
 }

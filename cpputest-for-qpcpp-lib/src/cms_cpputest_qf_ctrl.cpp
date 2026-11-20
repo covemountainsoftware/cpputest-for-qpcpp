@@ -146,6 +146,11 @@ void Teardown()
     }
 }
 
+bool IsSetup()
+{
+    return l_pubSubEventMemPoolConfigs != nullptr;
+}
+
 void ChangeMemPoolTeardownOption(const MemPoolTeardownOption memPoolOpt)
 {
     l_memPoolOption = memPoolOpt;

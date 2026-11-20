@@ -46,8 +46,8 @@ TEST_GROUP(qf_ctrlPublishTests)
 
     void teardown() final
     {
-        cms::test::qf_ctrl::Teardown();
         delete mRecorder;
+        cms::test::qf_ctrl::Teardown();
     }
 };
 

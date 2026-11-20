@@ -29,8 +29,7 @@
 #include "qpcpp.hpp"
 #include <vector>
 
-namespace cms {
-namespace test {
+namespace cms::test {
 
 class PublishedEventRecorder;
 
@@ -73,7 +72,14 @@ void Setup(enum_t maxPubSubSignalValue, uint32_t ticksPerSecond,
 void ChangeMemPoolTeardownOption(MemPoolTeardownOption memPoolOpt);
 
 /// Teardown the QP/QF subsystem after completing a unit test.
+/// Destroy any active objects or recorders holding pool events
+/// BEFORE calling Teardown(), so their events are returned to the
+/// pools prior to leak detection.
 void Teardown();
+
+/// \return true between Setup() and Teardown(), i.e. while the QF
+///         event pools are valid.
+bool IsSetup();
 
 /// During a unit test, call this function to "give CPU time"
 /// to the QF subsystem.
@@ -98,7 +104,7 @@ void PublishEvent(QP::QEvt const * e);
 /// Publish a trivial QEvt event to the QF framework followed internally
 /// by ProcessEvents().
 /// \param sig
-/// \param recorder, if provided, will automatically ensure the published
+/// \param recorder when provided, will automatically ensure the published
 ///                  event is ignored by the recorder.
 void PublishAndProcess(enum_t sig,
                        PublishedEventRecorder* recorder = nullptr);
@@ -117,7 +123,7 @@ inline void PostAndProcess(QP::QEvt const * e, QP::QActive* dest)
 
 /// Helper method to Post a static const QEvt to an active object
 /// followed internally by ProcessEvents().
-/// \param sig (template param):  the signal value of the const event to post
+/// \tparam sig (template param):  the signal value of the const event to post
 /// \param dest : the active object to post to.
 template <enum_t sig>
 inline void PostAndProcess(QP::QActive* dest)
@@ -131,7 +137,6 @@ inline void PostAndProcess(QP::QActive* dest)
 const char * GetVersion();
 
 } //namespace qf_ctrl
-} //namespace test
-} //namespace cms
+} // namespace cms::test
 
 #endif //CMS_CPPUTEST_QF_CTRL_HPP
