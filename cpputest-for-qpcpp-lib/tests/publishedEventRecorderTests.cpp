@@ -68,7 +68,7 @@ TEST_GROUP(PublishedEventRecorderTests) {
         qf_ctrl::PublishAndProcess(sig);
         CHECK_TRUE(mUnderTest->isAnyEventRecorded());
         CHECK_FALSE(mUnderTest->isEmpty());
-        CHECK_TRUE(mUnderTest->isSignalRecorded(sig));
+        CHECK_TRUE(mUnderTest->isNextRecordedSignal(sig));
     }
 };
 
@@ -85,7 +85,7 @@ TEST(PublishedEventRecorderTests,
     qf_ctrl::ProcessEvents();   // give cpu time for processing
     CHECK_FALSE(mUnderTest->isAnyEventRecorded());
     CHECK_TRUE(mUnderTest->isEmpty());
-    CHECK_FALSE(mUnderTest->isSignalRecorded(outOfRecorderRangeSig));
+    CHECK_FALSE(mUnderTest->isNextRecordedSignal(outOfRecorderRangeSig));
 }
 
 TEST(PublishedEventRecorderTests, recorder_can_capture_multiple_events)
@@ -95,8 +95,8 @@ TEST(PublishedEventRecorderTests, recorder_can_capture_multiple_events)
     qf_ctrl::ProcessEvents();   // give cpu time for processing
     CHECK_TRUE(mUnderTest->isAnyEventRecorded());
     CHECK_FALSE(mUnderTest->isEmpty());
-    CHECK_TRUE(mUnderTest->isSignalRecorded(TEST1_PUBLISH_SIG));
-    CHECK_TRUE(mUnderTest->isSignalRecorded(TEST2_PUBLISH_SIG));
+    CHECK_TRUE(mUnderTest->isNextRecordedSignal(TEST1_PUBLISH_SIG));
+    CHECK_TRUE(mUnderTest->isNextRecordedSignal(TEST2_PUBLISH_SIG));
 }
 
 TEST(PublishedEventRecorderTests, recorder_can_oneshot_ignore_an_event)
@@ -162,4 +162,32 @@ TEST(PublishedEventRecorderTeardownOrderTests,
 
     qf_ctrl::Teardown();
     delete recorder;
+}
+
+TEST(PublishedEventRecorderTests,
+     is_next_recorded_signal_consumes_the_oldest_event_even_on_mismatch)
+{
+    qf_ctrl::PublishEvent(TEST1_PUBLISH_SIG);
+    qf_ctrl::PublishEvent(TEST2_PUBLISH_SIG);
+    qf_ctrl::ProcessEvents();
+
+    // oldest is TEST1: no match, but it is still consumed
+    CHECK_FALSE(mUnderTest->isNextRecordedSignal(TEST2_PUBLISH_SIG));
+    CHECK_TRUE(mUnderTest->isNextRecordedSignal(TEST2_PUBLISH_SIG));
+    CHECK_TRUE(mUnderTest->isEmpty());
+}
+
+TEST(PublishedEventRecorderTests,
+     deprecated_is_signal_recorded_still_consumes_and_checks_the_oldest_event)
+{
+    qf_ctrl::PublishEvent(TEST1_PUBLISH_SIG);
+    qf_ctrl::PublishEvent(TEST2_PUBLISH_SIG);
+    qf_ctrl::ProcessEvents();
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+    CHECK_TRUE(mUnderTest->isSignalRecorded(TEST1_PUBLISH_SIG));
+    CHECK_TRUE(mUnderTest->isSignalRecorded(TEST2_PUBLISH_SIG));
+#pragma GCC diagnostic pop
+    CHECK_TRUE(mUnderTest->isEmpty());
 }

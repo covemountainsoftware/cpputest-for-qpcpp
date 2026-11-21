@@ -111,15 +111,31 @@ public:
 
     [[nodiscard]] virtual bool isAnyEventRecorded() const { return !m_recordedEvents.isEmpty(); }
 
-    virtual bool isSignalRecorded(const enum_t sig)
+    /// Removes the oldest recorded event and checks its signal. Intended
+    /// for verifying the order of recorded events, one call per event.
+    /// \note The oldest event is removed (garbage collected) even when its
+    ///       signal does not match. This is not a search of all recorded
+    ///       events.
+    /// \param sig - the signal expected for the oldest recorded event
+    /// \return true if an event was recorded and its signal equals sig.
+    virtual bool isNextRecordedSignal(const enum_t sig)
     {
         if (!isAnyEventRecorded()) {
             return false;
         }
 
-        const auto e       = getRecordedEvent<QP::QEvt>();
-        enum_t recordedSig = e->sig;
+        const auto e             = getRecordedEvent<QP::QEvt>();
+        const enum_t recordedSig = e->sig;
         return recordedSig == sig;
+    }
+
+    /// \deprecated Same behavior as isNextRecordedSignal(), which more
+    ///             clearly names what it does. Will be removed in a future
+    ///             major version.
+    [[deprecated("use isNextRecordedSignal(): same behavior, clearer name")]]
+    virtual bool isSignalRecorded(const enum_t sig)
+    {
+        return isNextRecordedSignal(sig);
     }
 
     template <class EvtT> cms::QEvtUniquePtr<EvtT> getRecordedEvent()

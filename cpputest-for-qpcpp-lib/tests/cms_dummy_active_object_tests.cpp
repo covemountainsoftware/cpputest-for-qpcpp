@@ -66,7 +66,7 @@ TEST(dummy_ao_tests, dummy_ao_provides_recorder_option)
     CHECK_EQUAL(TEST1_SIG, recordedEvent1->sig);
 
     CHECK_TRUE(dummy->isAnyEventRecorded());
-    CHECK_TRUE(dummy->isSignalRecorded(TEST2_SIG));
+    CHECK_TRUE(dummy->isNextRecordedSignal(TEST2_SIG));
 }
 TEST(dummy_ao_tests,
      dummy_ao_in_recorder_mode_will_gc_recorded_events_upon_destruction)
@@ -81,4 +81,19 @@ TEST(dummy_ao_tests,
 
     // destroy before Teardown(); Teardown's pool leak check must pass
     dummy.reset();
+}
+
+TEST(dummy_ao_tests,
+     dummy_ao_deprecated_is_signal_recorded_still_consumes_and_checks_the_oldest_event)
+{
+    static constexpr enum_t TEST1_SIG = QP::Q_USER_SIG + 1;
+    auto dummy = CreateAndStartDummyActiveObject(
+      DefaultDummyActiveObject::EventBehavior::RECORDER);
+    qf_ctrl::PostAndProcess<TEST1_SIG>(dummy.get());
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+    CHECK_TRUE(dummy->isSignalRecorded(TEST1_SIG));
+#pragma GCC diagnostic pop
+    CHECK_TRUE(dummy->isRecorderEmpty());
 }

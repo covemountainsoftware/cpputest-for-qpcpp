@@ -58,23 +58,23 @@ TEST(qf_ctrlPublishTests,
     qf_ctrl::PublishEvent(TEST2_PUBLISH_SIG);   // second published event
     qf_ctrl::ProcessEvents();                   // give cpu time for processing
     CHECK_TRUE(
-      mRecorder->isSignalRecorded(TEST1_PUBLISH_SIG));   // expect first event
+      mRecorder->isNextRecordedSignal(TEST1_PUBLISH_SIG));   // expect first event
     CHECK_TRUE(
-      mRecorder->isSignalRecorded(TEST2_PUBLISH_SIG));   // expect second event
+      mRecorder->isNextRecordedSignal(TEST2_PUBLISH_SIG));   // expect second event
 }
 
 TEST(qf_ctrlPublishTests,
      qf_ctrl_provides_a_trivial_publish_and_process_from_test_helper_func)
 {
     qf_ctrl::PublishAndProcess(TEST1_PUBLISH_SIG);
-    CHECK_TRUE(mRecorder->isSignalRecorded(TEST1_PUBLISH_SIG));
+    CHECK_TRUE(mRecorder->isNextRecordedSignal(TEST1_PUBLISH_SIG));
 }
 
 TEST(qf_ctrlPublishTests,
      qf_ctrl_provides_a_trivial_publish_and_process_from_test_helper_func_with_recorder_ignore_option)
 {
     qf_ctrl::PublishAndProcess(TEST1_PUBLISH_SIG, mRecorder);
-    CHECK_FALSE(mRecorder->isSignalRecorded(TEST1_PUBLISH_SIG));
+    CHECK_FALSE(mRecorder->isNextRecordedSignal(TEST1_PUBLISH_SIG));
 }
 
 TEST(qf_ctrlPublishTests, qf_ctrl_provides_a_qevt_publish_from_test_helper_func)
@@ -82,7 +82,7 @@ TEST(qf_ctrlPublishTests, qf_ctrl_provides_a_qevt_publish_from_test_helper_func)
     auto e = Q_NEW(QP::QEvt, TEST1_PUBLISH_SIG);
     qf_ctrl::PublishEvent(e);
     qf_ctrl::ProcessEvents();
-    CHECK_TRUE(mRecorder->isSignalRecorded(TEST1_PUBLISH_SIG));
+    CHECK_TRUE(mRecorder->isNextRecordedSignal(TEST1_PUBLISH_SIG));
  }
 
 TEST(qf_ctrlPublishTests,
@@ -90,7 +90,7 @@ TEST(qf_ctrlPublishTests,
 {
     auto e = Q_NEW(QP::QEvt, TEST1_PUBLISH_SIG);
     qf_ctrl::PublishAndProcess(e);
-    CHECK_TRUE(mRecorder->isSignalRecorded(TEST1_PUBLISH_SIG));
+    CHECK_TRUE(mRecorder->isNextRecordedSignal(TEST1_PUBLISH_SIG));
 }
 
 TEST(qf_ctrlPublishTests,
@@ -98,5 +98,5 @@ TEST(qf_ctrlPublishTests,
 {
     auto e = Q_NEW(QP::QEvt, TEST1_PUBLISH_SIG);
     qf_ctrl::PublishAndProcess(e, mRecorder);
-    CHECK_FALSE(mRecorder->isSignalRecorded(TEST1_PUBLISH_SIG));
+    CHECK_FALSE(mRecorder->isNextRecordedSignal(TEST1_PUBLISH_SIG));
 }

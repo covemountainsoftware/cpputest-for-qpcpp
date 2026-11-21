@@ -112,14 +112,15 @@ public:
         return !m_recordedEvents.isEmpty();
     }
 
-    bool isSignalRecorded(enum_t sig) override
+    /// \copydoc DummyActiveObject::isNextRecordedSignal
+    bool isNextRecordedSignal(const enum_t sig) override
     {
         if (!isAnyEventRecorded()) {
             return false;
         }
 
         const auto e       = getRecordedEvent<QP::QEvt>();
-        enum_t recordedSig = e->sig;
+        const enum_t recordedSig = e->sig;
         return recordedSig == sig;
     }
 
