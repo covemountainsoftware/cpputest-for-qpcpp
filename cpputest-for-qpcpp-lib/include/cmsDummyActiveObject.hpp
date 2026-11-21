@@ -29,14 +29,12 @@
 #include "qpcpp.hpp"
 #include <array>
 #include <functional>
-#include <cstddef>
 #include <memory>
 #include "cmsVectorBackedQEQueue.hpp"
 #include "qevtUniquePtr.hpp"
 #include "cms_cpputest_qf_ctrl.hpp"
 
-namespace cms {
-namespace test {
+namespace cms::test {
 /// The Dummy Active Object may be used
 /// when an active object (AO) under test is
 /// interacting with another AO during a test.
@@ -109,11 +107,11 @@ public:
               nullptr, 0);
     }
 
-    bool isRecorderEmpty() const { return m_recordedEvents.isEmpty(); }
+    [[nodiscard]] bool isRecorderEmpty() const { return m_recordedEvents.isEmpty(); }
 
-    virtual bool isAnyEventRecorded() const { return !m_recordedEvents.isEmpty(); }
+    [[nodiscard]] virtual bool isAnyEventRecorded() const { return !m_recordedEvents.isEmpty(); }
 
-    virtual bool isSignalRecorded(enum_t sig)
+    virtual bool isSignalRecorded(const enum_t sig)
     {
         if (!isAnyEventRecorded()) {
             return false;
@@ -199,7 +197,7 @@ inline DefaultDummyActiveObjectUniquePtr CreateAndStartDummyActiveObject(
     return dummy;
 }
 
-}  // namespace test
-}   // namespace cms
+} // namespace cms::test
+
 
 #endif   // CMS_DUMMY_ACTIVE_OBJECT_HPP
