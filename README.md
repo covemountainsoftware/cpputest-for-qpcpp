@@ -183,6 +183,9 @@ provides for convenience and helper methods such as:
 * `cms::test::qf_ctrl::MoveTicksForward(...)` - call this to advance time by
   an exact number of system clock ticks. Use `MoveTicksForward(1)` to
   guarantee a single tick.
+* Note: both time functions simulate QP tick rate 0 only, which is QP's
+  default configuration (`QF_MAX_TICK_RATE` of 1). Time events armed on
+  any other tick rate do not fire.
 * `cms::test::qf_ctrl::PublishEvent(...)` - convenience method enabling 
   publishing of events from a test.
 * `cms::test::qf_ctrl::PublishAndProcess(...)` - additional convenience methods,

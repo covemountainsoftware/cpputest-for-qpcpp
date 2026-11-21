@@ -89,6 +89,8 @@ void ProcessEvents();
 /// an exact number of system clock ticks (tick rate 0). Each tick
 /// executes the QF framework's tick function followed by ProcessEvents().
 /// \param ticks - how many ticks should be simulated. Zero is a no-op.
+/// \note Only QP tick rate 0 is simulated. Time events armed on any other
+///       tick rate (QF_MAX_TICK_RATE > 1) never fire in this port.
 void MoveTicksForward(uint32_t ticks);
 
 /// During a unit test, call this function to "move time forward."
@@ -98,6 +100,7 @@ void MoveTicksForward(uint32_t ticks);
 /// For example, at 100 Hz, two calls of 5 ms each produce one tick.
 /// No tick is forced; to guarantee a tick, use MoveTicksForward(1).
 /// \param duration - how many milliseconds of time should be simulated
+/// \note Only QP tick rate 0 is simulated (see MoveTicksForward()).
 void MoveTimeForward(const std::chrono::milliseconds &duration);
 
 /// Publish a trivial QEvt event to the QF framework. This helper
